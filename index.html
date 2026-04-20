@@ -33,571 +33,148 @@
     overflow-x: hidden;
   }
 
-  /* Scanline overlay */
   body::after {
     content: '';
     position: fixed;
     inset: 0;
-    background: repeating-linear-gradient(
-      to bottom,
-      transparent 0px,
-      transparent 3px,
-      rgba(0,0,0,0.08) 3px,
-      rgba(0,0,0,0.08) 4px
-    );
+    background: repeating-linear-gradient(to bottom, transparent 0px, transparent 3px, rgba(0,0,0,0.08) 3px, rgba(0,0,0,0.08) 4px);
     pointer-events: none;
     z-index: 9999;
   }
 
-  /* Flicker on load */
-  @keyframes flicker {
-    0%, 100% { opacity: 1; }
-    92% { opacity: 1; }
-    93% { opacity: 0.8; }
-    94% { opacity: 1; }
-    96% { opacity: 0.9; }
-    97% { opacity: 1; }
-  }
+  @keyframes flicker { 0%,100%{opacity:1}92%{opacity:1}93%{opacity:.8}94%{opacity:1}96%{opacity:.9}97%{opacity:1} }
+  @keyframes blink { 0%,100%{opacity:1}50%{opacity:0} }
+  @keyframes slideIn { from{transform:translateY(-20px);opacity:0}to{transform:translateY(0);opacity:1} }
+  @keyframes slideUp { from{transform:translateY(20px);opacity:0}to{transform:translateY(0);opacity:1} }
+  @keyframes shake { 0%,100%{transform:translateX(0)}20%{transform:translateX(-8px)}40%{transform:translateX(8px)}60%{transform:translateX(-6px)}80%{transform:translateX(6px)} }
+  @keyframes countUp { from{transform:scale(1.4);color:var(--amber)}to{transform:scale(1);color:var(--green)} }
+  @keyframes fadeIn { from{opacity:0}to{opacity:1} }
+
   body { animation: flicker 8s infinite; }
 
-  @keyframes scandown {
-    0% { top: -10%; }
-    100% { top: 110%; }
-  }
-
-  @keyframes blink {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0; }
-  }
-
-  @keyframes slideIn {
-    from { transform: translateY(-20px); opacity: 0; }
-    to { transform: translateY(0); opacity: 1; }
-  }
-
-  @keyframes slideUp {
-    from { transform: translateY(20px); opacity: 0; }
-    to { transform: translateY(0); opacity: 1; }
-  }
-
-  @keyframes shake {
-    0%, 100% { transform: translateX(0); }
-    20% { transform: translateX(-8px); }
-    40% { transform: translateX(8px); }
-    60% { transform: translateX(-6px); }
-    80% { transform: translateX(6px); }
-  }
-
-  @keyframes pulse-green {
-    0%, 100% { box-shadow: 0 0 8px var(--green), 0 0 16px var(--green-dark); }
-    50% { box-shadow: 0 0 16px var(--green), 0 0 32px var(--green-dark); }
-  }
-
-  @keyframes typewriter {
-    from { width: 0; }
-    to { width: 100%; }
-  }
-
-  @keyframes countUp {
-    from { transform: scale(1.4); color: var(--amber); }
-    to { transform: scale(1); color: var(--green); }
-  }
-
-  /* ===== HEADER ===== */
   #header {
-    width: 100%;
-    max-width: 780px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 10px 16px;
-    border: 1px solid var(--border);
-    background: var(--surface);
-    margin-bottom: 16px;
-    border-radius: 4px;
+    width: 100%; max-width: 780px;
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 10px 16px; border: 1px solid var(--border);
+    background: var(--surface); margin-bottom: 16px; border-radius: 4px;
   }
 
-  #logo {
-    font-size: 1.1rem;
-    font-weight: bold;
-    letter-spacing: 2px;
-    text-transform: uppercase;
-  }
+  #logo { font-size: 1.1rem; font-weight: bold; letter-spacing: 2px; text-transform: uppercase; }
   #logo span { color: var(--amber); }
 
-  #score-block {
-    display: flex;
-    gap: 20px;
-    align-items: center;
-    font-size: 0.85rem;
-  }
+  #score-block { display: flex; gap: 20px; align-items: center; font-size: 0.85rem; }
+  #score-display { font-size: 1.1rem; font-weight: bold; }
+  #score-display.pop { animation: countUp 0.4s ease; }
+  #timer-display { color: var(--text-muted); }
+  #timer-display.urgent { color: var(--amber); animation: blink 0.6s infinite; }
+  #level-indicator { color: var(--text-muted); font-size: 0.8rem; }
 
-  #score-display {
-    font-size: 1.1rem;
-    font-weight: bold;
-    animation: none;
-  }
-  #score-display.pop {
-    animation: countUp 0.4s ease;
-  }
+  .screen { width: 100%; max-width: 780px; display: none; }
+  .screen.active { display: block; animation: slideIn 0.35s ease; }
 
-  #timer-display {
-    color: var(--text-muted);
-  }
-  #timer-display.urgent {
-    color: var(--amber);
-    animation: blink 0.6s infinite;
-  }
-
-  #level-indicator {
-    color: var(--text-muted);
-    font-size: 0.8rem;
-  }
-
-  /* ===== SCREENS ===== */
-  .screen {
-    width: 100%;
-    max-width: 780px;
-    display: none;
-  }
-  .screen.active {
-    display: block;
-    animation: slideIn 0.35s ease;
-  }
-
-  /* ===== SPLASH SCREEN ===== */
-  #splash {
-    text-align: center;
-    padding: 40px 20px;
-  }
-
-  #splash h1 {
-    font-size: clamp(2rem, 8vw, 3.5rem);
-    letter-spacing: 4px;
-    text-transform: uppercase;
-    margin-bottom: 8px;
-    text-shadow: 0 0 20px var(--green), 0 0 40px var(--green-dark);
-  }
-
+  /* SPLASH */
+  #splash { text-align: center; padding: 40px 20px; }
+  #splash h1 { font-size: clamp(2rem,8vw,3.5rem); letter-spacing: 4px; text-transform: uppercase; margin-bottom: 8px; text-shadow: 0 0 20px var(--green),0 0 40px var(--green-dark); }
   #splash h1 span { color: var(--amber); }
+  #splash .tagline { color: var(--text-muted); font-size: 0.9rem; margin-bottom: 40px; letter-spacing: 2px; }
 
-  #splash .tagline {
-    color: var(--text-muted);
-    font-size: 0.9rem;
-    margin-bottom: 40px;
-    letter-spacing: 2px;
-  }
-
-  .terminal-box {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 4px;
-    padding: 20px;
-    text-align: left;
-    margin-bottom: 24px;
-  }
-
-  .terminal-box .dot-row {
-    display: flex;
-    gap: 6px;
-    margin-bottom: 14px;
-  }
+  .terminal-box { background: var(--surface); border: 1px solid var(--border); border-radius: 4px; padding: 20px; text-align: left; margin-bottom: 24px; }
+  .terminal-box .dot-row { display: flex; gap: 6px; margin-bottom: 14px; }
   .dot { width: 12px; height: 12px; border-radius: 50%; }
-  .dot-r { background: #ff5f57; }
-  .dot-y { background: #ffbd2e; }
-  .dot-g { background: #28ca41; }
-
-  .terminal-box pre {
-    font-size: 0.82rem;
-    color: var(--green-dim);
-    line-height: 1.7;
-    white-space: pre-wrap;
-    word-break: break-word;
-  }
-
+  .dot-r { background: #ff5f57; } .dot-y { background: #ffbd2e; } .dot-g { background: #28ca41; }
+  .terminal-box pre { font-size: 0.82rem; color: var(--green-dim); line-height: 1.7; white-space: pre-wrap; word-break: break-word; }
   .terminal-box pre .cmd { color: var(--green); }
   .terminal-box pre .err { color: var(--red); }
   .terminal-box pre .muted { color: var(--text-muted); }
   .terminal-box pre .amber { color: var(--amber); }
 
-  .preview-levels {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 12px;
-    margin-bottom: 32px;
-  }
+  .preview-levels { display: grid; grid-template-columns: repeat(2,1fr); gap: 12px; margin-bottom: 32px; }
+  .preview-card { background: var(--surface); border: 1px solid var(--border); border-radius: 4px; padding: 14px; font-size: 0.78rem; color: var(--text-muted); }
+  .preview-card strong { display: block; color: var(--green); margin-bottom: 4px; font-size: 0.85rem; }
 
-  .preview-card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 4px;
-    padding: 14px;
-    font-size: 0.78rem;
-    color: var(--text-muted);
-  }
-  .preview-card strong {
-    display: block;
-    color: var(--green);
-    margin-bottom: 4px;
-    font-size: 0.85rem;
-  }
-
-  /* ===== BUTTONS ===== */
-  .btn {
-    background: transparent;
-    border: 1px solid var(--green);
-    color: var(--green);
-    font-family: inherit;
-    font-size: 1rem;
-    padding: 12px 32px;
-    cursor: pointer;
-    text-transform: uppercase;
-    letter-spacing: 3px;
-    border-radius: 2px;
-    transition: background 0.15s, box-shadow 0.15s, transform 0.1s;
-    position: relative;
-    overflow: hidden;
-  }
-  .btn::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: var(--green);
-    opacity: 0;
-    transition: opacity 0.15s;
-  }
+  /* BUTTONS */
+  .btn { background: transparent; border: 1px solid var(--green); color: var(--green); font-family: inherit; font-size: 1rem; padding: 12px 32px; cursor: pointer; text-transform: uppercase; letter-spacing: 3px; border-radius: 2px; transition: background 0.15s,box-shadow 0.15s,transform 0.1s; position: relative; overflow: hidden; }
+  .btn::before { content:''; position:absolute; inset:0; background:var(--green); opacity:0; transition:opacity 0.15s; }
   .btn:hover::before { opacity: 0.1; }
   .btn:hover { box-shadow: 0 0 12px var(--green-dark); transform: translateY(-1px); }
   .btn:active { transform: translateY(0); }
-
-  .btn-amber {
-    border-color: var(--amber);
-    color: var(--amber);
-  }
-  .btn-amber::before { background: var(--amber); }
+  .btn-amber { border-color:var(--amber); color:var(--amber); }
+  .btn-amber::before { background:var(--amber); }
   .btn-amber:hover { box-shadow: 0 0 12px rgba(255,183,0,0.3); }
+  .btn-sm { font-size: 0.75rem; padding: 7px 16px; letter-spacing: 2px; }
 
-  .btn-sm {
-    font-size: 0.75rem;
-    padding: 7px 16px;
-    letter-spacing: 2px;
-  }
+  /* GAME */
+  #game { display: none; }
+  #game.active { display: block; }
 
-  /* ===== GAME SCREEN ===== */
-  #game {
-    display: none;
-  }
-  #game.active {
-    display: block;
-  }
+  .level-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
+  .level-badge { background: var(--surface); border: 1px solid var(--border); padding: 4px 12px; font-size: 0.75rem; letter-spacing: 2px; color: var(--amber); border-radius: 2px; }
+  .level-title { font-size: 0.95rem; letter-spacing: 1px; color: var(--green-dim); }
+  .hint-btn-wrap { display: flex; align-items: center; gap: 8px; }
+  .hint-cost { font-size: 0.7rem; color: var(--red); }
 
-  .level-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 14px;
-  }
-
-  .level-badge {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    padding: 4px 12px;
-    font-size: 0.75rem;
-    letter-spacing: 2px;
-    color: var(--amber);
-    border-radius: 2px;
-  }
-
-  .level-title {
-    font-size: 0.95rem;
-    letter-spacing: 1px;
-    color: var(--green-dim);
-  }
-
-  .hint-btn-wrap {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-
-  .hint-cost {
-    font-size: 0.7rem;
-    color: var(--red);
-  }
-
-  .broken-code-panel {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 4px;
-    margin-bottom: 16px;
-    overflow: hidden;
-  }
-
-  .panel-bar {
-    background: var(--surface2);
-    border-bottom: 1px solid var(--border);
-    padding: 7px 14px;
-    font-size: 0.72rem;
-    color: var(--text-muted);
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    letter-spacing: 1px;
-  }
-
+  .broken-code-panel { background: var(--surface); border: 1px solid var(--border); border-radius: 4px; margin-bottom: 16px; overflow: hidden; }
+  .panel-bar { background: var(--surface2); border-bottom: 1px solid var(--border); padding: 7px 14px; font-size: 0.72rem; color: var(--text-muted); display: flex; justify-content: space-between; align-items: center; letter-spacing: 1px; }
   .panel-bar .dot-row { margin: 0; gap: 5px; }
   .panel-bar .dot { width: 9px; height: 9px; }
+  .code-body { padding: 16px 18px; overflow-x: auto; }
+  .code-body pre { font-size: 0.82rem; line-height: 1.75; color: var(--green-dim); white-space: pre; tab-size: 4; }
+  .code-body pre .highlight-bad { background: rgba(255,51,51,0.18); border-bottom: 2px solid var(--red); color: #ff6666; border-radius: 2px; padding: 0 2px; }
 
-  .code-body {
-    padding: 16px 18px;
-    overflow-x: auto;
-  }
+  .task-box { background: var(--surface); border: 1px solid var(--border); border-left: 3px solid var(--amber); border-radius: 4px; padding: 14px 16px; margin-bottom: 12px; font-size: 0.88rem; line-height: 1.6; color: var(--amber); animation: slideUp 0.3s ease; }
+  .task-box::before { content: '> TASK: '; opacity: 0.6; font-size: 0.75rem; }
 
-  .code-body pre {
-    font-size: 0.82rem;
-    line-height: 1.75;
-    color: var(--green-dim);
-    white-space: pre;
-    tab-size: 4;
-  }
-
-  .code-body pre .highlight-bad {
-    background: rgba(255, 51, 51, 0.18);
-    border-bottom: 2px solid var(--red);
-    color: #ff6666;
-    border-radius: 2px;
-    padding: 0 2px;
-  }
-
-  .task-box {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-left: 3px solid var(--amber);
-    border-radius: 4px;
-    padding: 14px 16px;
-    margin-bottom: 16px;
-    font-size: 0.88rem;
-    line-height: 1.6;
-    color: var(--amber);
-    animation: slideUp 0.3s ease;
-  }
-  .task-box::before {
-    content: '> TASK: ';
-    opacity: 0.6;
-    font-size: 0.75rem;
-  }
-
-  .hint-box {
-    background: rgba(0,80,0,0.3);
-    border: 1px solid var(--green-dark);
-    border-radius: 4px;
-    padding: 12px 16px;
-    margin-bottom: 16px;
-    font-size: 0.82rem;
-    color: var(--green-dim);
-    display: none;
-    animation: slideUp 0.3s ease;
-  }
+  .hint-box { background: rgba(0,80,0,0.3); border: 1px solid var(--green-dark); border-radius: 4px; padding: 12px 16px; margin-bottom: 12px; font-size: 0.82rem; color: var(--green-dim); display: none; animation: slideUp 0.3s ease; }
   .hint-box.visible { display: block; }
-  .hint-box::before {
-    content: '>> HINT: ';
-    color: var(--green);
-    font-size: 0.75rem;
-  }
+  .hint-box::before { content: '>> HINT: '; color: var(--green); font-size: 0.75rem; }
 
-  .answer-section {
-    display: flex;
-    gap: 10px;
-    margin-bottom: 12px;
-    flex-wrap: wrap;
-  }
+  .explain-box { background: rgba(0,50,0,0.5); border: 1px solid var(--green); border-radius: 4px; padding: 14px 16px; margin-bottom: 12px; font-size: 0.82rem; color: var(--green-dim); display: none; animation: fadeIn 0.4s ease; line-height: 1.6; }
+  .explain-box.visible { display: block; }
+  .explain-box::before { content: '>> WHY: '; color: var(--green); font-size: 0.75rem; font-weight: bold; }
 
-  #answer-input {
-    flex: 1;
-    min-width: 200px;
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 2px;
-    color: var(--green);
-    font-family: inherit;
-    font-size: 0.9rem;
-    padding: 11px 14px;
-    outline: none;
-    caret-color: var(--green);
-    transition: border-color 0.15s, box-shadow 0.15s;
-  }
-  #answer-input:focus {
-    border-color: var(--green);
-    box-shadow: 0 0 8px var(--green-dark);
-  }
+  .answer-section { display: flex; gap: 10px; margin-bottom: 12px; flex-wrap: wrap; }
+  #answer-input { flex: 1; min-width: 200px; background: var(--surface); border: 1px solid var(--border); border-radius: 2px; color: var(--green); font-family: inherit; font-size: 0.9rem; padding: 11px 14px; outline: none; caret-color: var(--green); transition: border-color 0.15s,box-shadow 0.15s; }
+  #answer-input:focus { border-color: var(--green); box-shadow: 0 0 8px var(--green-dark); }
   #answer-input::placeholder { color: var(--text-muted); }
+  #answer-input.correct-flash { border-color: var(--green)!important; box-shadow: 0 0 20px var(--green)!important; background: rgba(0,255,65,0.08)!important; }
+  #answer-input.wrong-flash { border-color: var(--red)!important; box-shadow: 0 0 16px rgba(255,51,51,0.4)!important; animation: shake 0.4s ease; }
 
-  #answer-input.correct-flash {
-    border-color: var(--green) !important;
-    box-shadow: 0 0 20px var(--green) !important;
-    background: rgba(0, 255, 65, 0.08) !important;
-  }
-  #answer-input.wrong-flash {
-    border-color: var(--red) !important;
-    box-shadow: 0 0 16px rgba(255,51,51,0.4) !important;
-    animation: shake 0.4s ease;
-  }
-
-  .feedback-bar {
-    height: 32px;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    font-size: 0.85rem;
-    margin-bottom: 8px;
-    transition: color 0.2s;
-    min-height: 32px;
-  }
-
+  .feedback-bar { height: 32px; display: flex; align-items: center; gap: 10px; font-size: 0.85rem; margin-bottom: 8px; transition: color 0.2s; min-height: 32px; }
   .feedback-bar.correct { color: var(--green); }
   .feedback-bar.wrong { color: var(--red); }
 
-  .attempts-row {
-    display: flex;
-    gap: 6px;
-    margin-bottom: 14px;
-  }
-  .attempt-dot {
-    width: 8px; height: 8px; border-radius: 50%;
-    background: var(--border);
-    transition: background 0.2s;
-  }
+  .attempts-row { display: flex; gap: 6px; margin-bottom: 14px; }
+  .attempt-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--border); transition: background 0.2s; }
   .attempt-dot.used { background: var(--red); }
   .attempt-dot.correct { background: var(--green); }
 
-  /* Multiple choice */
-  .choices-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 10px;
-    margin-bottom: 12px;
-  }
-
-  .choice-btn {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    color: var(--green-dim);
-    font-family: inherit;
-    font-size: 0.82rem;
-    padding: 12px 14px;
-    cursor: pointer;
-    text-align: left;
-    border-radius: 3px;
-    transition: border-color 0.15s, color 0.15s, background 0.15s;
-    line-height: 1.5;
-    word-break: break-word;
-  }
-  .choice-btn:hover {
-    border-color: var(--green);
-    color: var(--green);
-    background: rgba(0,255,65,0.04);
-  }
-  .choice-btn.correct-choice {
-    border-color: var(--green) !important;
-    color: var(--green) !important;
-    background: rgba(0,255,65,0.1) !important;
-    box-shadow: 0 0 12px var(--green-dark);
-  }
-  .choice-btn.wrong-choice {
-    border-color: var(--red) !important;
-    color: var(--red) !important;
-    background: rgba(255,51,51,0.08) !important;
-    animation: shake 0.4s ease;
-  }
+  .choices-grid { display: grid; grid-template-columns: repeat(auto-fit,minmax(200px,1fr)); gap: 10px; margin-bottom: 12px; }
+  .choice-btn { background: var(--surface); border: 1px solid var(--border); color: var(--green-dim); font-family: inherit; font-size: 0.82rem; padding: 12px 14px; cursor: pointer; text-align: left; border-radius: 3px; transition: border-color 0.15s,color 0.15s,background 0.15s; line-height: 1.5; word-break: break-word; }
+  .choice-btn:hover { border-color: var(--green); color: var(--green); background: rgba(0,255,65,0.04); }
+  .choice-btn.correct-choice { border-color: var(--green)!important; color: var(--green)!important; background: rgba(0,255,65,0.1)!important; box-shadow: 0 0 12px var(--green-dark); }
+  .choice-btn.wrong-choice { border-color: var(--red)!important; color: var(--red)!important; background: rgba(255,51,51,0.08)!important; animation: shake 0.4s ease; }
   .choice-btn:disabled { cursor: default; }
 
-  /* Progress bar */
-  #progress-bar-wrap {
-    width: 100%;
-    max-width: 780px;
-    margin-bottom: 16px;
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 2px;
-    height: 4px;
-  }
-  #progress-bar {
-    height: 100%;
-    background: var(--green);
-    border-radius: 2px;
-    transition: width 0.4s ease;
-    box-shadow: 0 0 8px var(--green);
-  }
+  #progress-bar-wrap { width: 100%; max-width: 780px; margin-bottom: 16px; background: var(--surface); border: 1px solid var(--border); border-radius: 2px; height: 4px; }
+  #progress-bar { height: 100%; background: var(--green); border-radius: 2px; transition: width 0.4s ease; box-shadow: 0 0 8px var(--green); }
 
-  /* ===== END SCREEN ===== */
-  #end {
-    text-align: center;
-    padding: 30px 20px;
-  }
-
-  #end h2 {
-    font-size: clamp(1.6rem, 6vw, 2.8rem);
-    letter-spacing: 3px;
-    margin-bottom: 8px;
-    text-shadow: 0 0 20px var(--green);
-  }
-
-  #end .final-score {
-    font-size: clamp(2.5rem, 10vw, 4rem);
-    color: var(--amber);
-    font-weight: bold;
-    margin: 16px 0;
-    text-shadow: 0 0 30px var(--amber);
-  }
-
-  #end .rank-label {
-    font-size: 1rem;
-    color: var(--green-dim);
-    letter-spacing: 2px;
-    margin-bottom: 28px;
-  }
-
-  .score-breakdown {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 4px;
-    padding: 16px;
-    margin-bottom: 28px;
-    text-align: left;
-    max-width: 420px;
-    margin-left: auto;
-    margin-right: auto;
-  }
-
-  .score-breakdown h3 {
-    font-size: 0.75rem;
-    letter-spacing: 2px;
-    color: var(--text-muted);
-    margin-bottom: 12px;
-    text-align: center;
-  }
-
-  .breakdown-row {
-    display: flex;
-    justify-content: space-between;
-    font-size: 0.82rem;
-    padding: 5px 0;
-    border-bottom: 1px solid var(--border);
-    color: var(--green-dim);
-  }
+  /* END */
+  #end { text-align: center; padding: 30px 20px; }
+  #end h2 { font-size: clamp(1.6rem,6vw,2.8rem); letter-spacing: 3px; margin-bottom: 8px; text-shadow: 0 0 20px var(--green); }
+  #end .final-score { font-size: clamp(2.5rem,10vw,4rem); color: var(--amber); font-weight: bold; margin: 16px 0; text-shadow: 0 0 30px var(--amber); }
+  #end .rank-label { font-size: 1rem; color: var(--green-dim); letter-spacing: 2px; margin-bottom: 28px; }
+  .score-breakdown { background: var(--surface); border: 1px solid var(--border); border-radius: 4px; padding: 16px; margin-bottom: 28px; text-align: left; max-width: 420px; margin-left: auto; margin-right: auto; }
+  .score-breakdown h3 { font-size: 0.75rem; letter-spacing: 2px; color: var(--text-muted); margin-bottom: 12px; text-align: center; }
+  .breakdown-row { display: flex; justify-content: space-between; font-size: 0.82rem; padding: 5px 0; border-bottom: 1px solid var(--border); color: var(--green-dim); }
   .breakdown-row:last-child { border-bottom: none; }
   .breakdown-row .pts { color: var(--green); font-weight: bold; }
   .breakdown-row .pts.neg { color: var(--red); }
 
-  /* Typewriter cursor */
-  .cursor {
-    display: inline-block;
-    animation: blink 1s infinite;
-    color: var(--green);
-  }
+  .cursor { display: inline-block; animation: blink 1s infinite; color: var(--green); }
 
-  /* Mobile tweaks */
-  @media (max-width: 540px) {
+  .matrix-bg { position: fixed; top:0;left:0;right:0;bottom:0; z-index:-1; overflow:hidden; opacity:0.03; pointer-events:none; font-size:10px; line-height:14px; color:var(--green); word-break:break-all; }
+
+  @media (max-width:540px) {
     #header { flex-wrap: wrap; gap: 8px; }
     #score-block { font-size: 0.78rem; gap: 12px; }
     .preview-levels { grid-template-columns: 1fr; }
@@ -605,89 +182,53 @@
     #answer-input { width: 100%; }
     .choices-grid { grid-template-columns: 1fr; }
   }
-
-  /* Animated background particles */
-  .matrix-bg {
-    position: fixed;
-    top: 0; left: 0; right: 0; bottom: 0;
-    z-index: -1;
-    overflow: hidden;
-    opacity: 0.03;
-    pointer-events: none;
-    font-size: 10px;
-    line-height: 14px;
-    color: var(--green);
-    word-break: break-all;
-  }
 </style>
 </head>
 <body>
 
 <div class="matrix-bg" id="matrix-bg"></div>
 
-<!-- HEADER (always visible during game) -->
 <div id="header">
   <div id="logo">Fix the <span>Ship</span> <span class="cursor">_</span></div>
   <div id="score-block">
-    <div id="level-indicator">LEVEL 0/4</div>
+    <div id="level-indicator">LEVEL 0/10</div>
     <div id="timer-display">00:00</div>
     <div>SCORE: <span id="score-display">0</span></div>
   </div>
 </div>
 
-<!-- Progress bar -->
-<div id="progress-bar-wrap">
-  <div id="progress-bar" style="width:0%"></div>
-</div>
+<div id="progress-bar-wrap"><div id="progress-bar" style="width:0%"></div></div>
 
-<!-- ===== SPLASH ===== -->
+<!-- SPLASH -->
 <div id="splash" class="screen active">
   <h1>Fix the <span>Ship</span></h1>
-  <p class="tagline">// devops debugging challenge //</p>
+  <p class="tagline">// linux → docker debugging challenge //</p>
 
   <div class="terminal-box">
-    <div class="dot-row">
-      <div class="dot dot-r"></div>
-      <div class="dot dot-y"></div>
-      <div class="dot dot-g"></div>
-    </div>
-    <pre><span class="muted">$</span> <span class="cmd">docker build -t my-app .</span>
+    <div class="dot-row"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div></div>
+    <pre><span class="muted">$</span> <span class="cmd">apt-get install supervisor</span>
+<span class="amber">[ waiting for input... ]</span>
+<span class="muted">$</span> <span class="cmd">docker build -t my-app .</span>
 <span class="err">ERROR: server.js: no such file or directory</span>
 <span class="muted">$</span> <span class="cmd">supervisord -c supervisord.conf</span>
-<span class="err">ERROR: Error: malformed config file</span>
-<span class="muted">$</span> <span class="cmd">apt-get install supervisor</span>
-<span class="amber">[ waiting for input... ]</span>
+<span class="err">ERROR: malformed config file</span>
 <span class="muted">$</span> <span class="muted">|</span></pre>
   </div>
 
   <div class="preview-levels">
-    <div class="preview-card">
-      <strong>LEVEL 1 — Linux</strong>
-      A package install hangs forever...
-    </div>
-    <div class="preview-card">
-      <strong>LEVEL 2 — Dockerfile</strong>
-      Container builds but nothing works...
-    </div>
-    <div class="preview-card">
-      <strong>LEVEL 3 — Supervisord</strong>
-      Config file refuses to parse...
-    </div>
-    <div class="preview-card">
-      <strong>LEVEL 4 — Docker Compose</strong>
-      Wrong image is being deployed...
-    </div>
+    <div class="preview-card"><strong>CHAPTER 1 — Linux Basics</strong>Navigate, read files, install packages</div>
+    <div class="preview-card"><strong>CHAPTER 2 — Permissions & Env</strong>chmod, env vars, processes</div>
+    <div class="preview-card"><strong>CHAPTER 3 — Dockerfile</strong>Build images, fix broken configs</div>
+    <div class="preview-card"><strong>CHAPTER 4 — Compose & Deploy</strong>Services, ports, production bugs</div>
   </div>
 
   <button class="btn" onclick="startGame()">BOOT SEQUENCE &gt;&gt;</button>
 </div>
 
-<!-- ===== GAME ===== -->
+<!-- GAME -->
 <div id="game" class="screen">
   <div class="level-header">
-    <div>
-      <div class="level-badge" id="level-badge">LEVEL 1 / 4</div>
-    </div>
+    <div><div class="level-badge" id="level-badge">LEVEL 1/10</div></div>
     <div class="level-title" id="level-title">LINUX BASICS</div>
     <div class="hint-btn-wrap">
       <span class="hint-cost">-50 pts</span>
@@ -697,126 +238,213 @@
 
   <div class="broken-code-panel">
     <div class="panel-bar">
-      <div class="dot-row">
-        <div class="dot dot-r"></div>
-        <div class="dot dot-y"></div>
-        <div class="dot dot-g"></div>
-      </div>
+      <div class="dot-row"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div></div>
       <span id="file-label">terminal</span>
     </div>
-    <div class="code-body">
-      <pre id="code-display"></pre>
-    </div>
+    <div class="code-body"><pre id="code-display"></pre></div>
   </div>
 
   <div class="task-box" id="task-text"></div>
-
   <div class="hint-box" id="hint-box"></div>
+  <div class="explain-box" id="explain-box"></div>
 
   <div class="attempts-row" id="attempts-row"></div>
   <div class="feedback-bar" id="feedback-bar"></div>
 
-  <!-- Typing answer -->
   <div class="answer-section" id="type-answer-section">
     <input type="text" id="answer-input" placeholder="type your answer here..." autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
     <button class="btn" onclick="submitAnswer()">SUBMIT</button>
   </div>
 
-  <!-- Multiple choice -->
   <div class="choices-grid" id="choices-section" style="display:none"></div>
 </div>
 
-<!-- ===== END SCREEN ===== -->
+<!-- END -->
 <div id="end" class="screen">
   <h2 id="end-title">SHIP FIXED</h2>
   <div class="final-score" id="final-score">0</div>
   <div class="rank-label" id="rank-label">JUNIOR DEVOPS</div>
-
   <div class="score-breakdown" id="score-breakdown"></div>
-
   <button class="btn" onclick="resetGame()">PLAY AGAIN &gt;&gt;</button>
 </div>
 
 <script>
 // ============================================================
-//  GAME DATA
+//  LEVELS  (Linux basics → Docker → Compose)
 // ============================================================
 const LEVELS = [
+  // ── CHAPTER 1: Linux Basics ──
   {
     id: 1,
-    category: 'LINUX BASICS',
+    category: 'LINUX — NAVIGATION',
     file: 'terminal',
-    type: 'type', // type | choice
-    code: `$ apt-get install supervisor`,
-    highlightLine: null,
-    task: 'This command will hang forever — it\'s waiting for a yes/no prompt with no one there. What flag is missing?',
-    hint: 'apt-get has a flag that automatically answers "yes" to all prompts. It starts with a dash.',
-    // accepted answers (lowercase, trimmed)
-    answers: ['-y', '--yes', '--assume-yes', '-y flag', 'the -y flag'],
-    explanation: '`-y` (or `--yes`) tells apt-get to assume YES to all prompts, preventing it from hanging in non-interactive environments like Docker builds.',
+    type: 'choice',
+    code: `$ ssh ubuntu@192.168.1.10
+Welcome to Ubuntu 22.04 LTS
+Last login: Mon Apr 21 09:00:00 2026
+ubuntu@server:~$`,
+    task: "You just SSH'd into a remote Linux server. You need to know where you are. What command prints the current directory?",
+    hint: 'Three letters. Think "print working directory".',
+    choices: [
+      { label: 'ls', correct: false },
+      { label: 'pwd', correct: true },
+      { label: 'cd', correct: false },
+      { label: 'whoami', correct: false },
+    ],
+    explanation: 'pwd = Print Working Directory. Always the first command when you land on a new server. Tells you exactly where in the filesystem you are.',
   },
   {
     id: 2,
-    category: 'DOCKERFILE',
+    category: 'LINUX — FILES',
+    file: 'terminal',
+    type: 'type',
+    code: `ubuntu@server:~$ pwd
+/home/ubuntu
+ubuntu@server:~$ ___`,
+    task: 'You know where you are. Now what command do you run to see what files and folders are in this directory?',
+    hint: 'Short for "list". Two letters.',
+    answers: ['ls', 'ls .', 'ls /home/ubuntu'],
+    explanation: 'ls (list) shows everything in a directory. Add -la for hidden files and permissions: `ls -la`',
+  },
+  {
+    id: 3,
+    category: 'LINUX — READING FILES',
+    file: 'terminal',
+    type: 'choice',
+    code: `ubuntu@server:~$ ls
+server.js   .env   docker-compose.yml   README.md
+ubuntu@server:~$ ___  .env`,
+    task: "You want to read what's inside the .env file without opening an editor. What command do you use?",
+    hint: 'Think of a cat. It shows you file contents.',
+    choices: [
+      { label: 'open .env', correct: false },
+      { label: 'read .env', correct: false },
+      { label: 'cat .env', correct: true },
+      { label: 'print .env', correct: false },
+    ],
+    explanation: 'cat (concatenate) reads and prints file contents to the terminal. Quick and simple. For long files, use `less .env` so you can scroll.',
+  },
+  {
+    id: 4,
+    category: 'LINUX — PACKAGE MANAGER',
+    file: 'terminal',
+    type: 'type',
+    code: `$ apt-get install supervisor`,
+    task: "This command hangs forever — it's waiting for a yes/no prompt with no one to answer it (this is inside a Docker build). What single flag fixes it?",
+    hint: 'It tells apt-get to assume YES to all prompts. Starts with a dash.',
+    answers: ['-y', '--yes', '--assume-yes'],
+    explanation: '-y (or --yes) auto-confirms all prompts. Critical in Dockerfiles and scripts — interactive prompts have nobody to answer them.',
+  },
+  {
+    id: 5,
+    category: 'LINUX — PERMISSIONS',
+    file: 'terminal',
+    type: 'choice',
+    code: `-rw-r--r-- 1 ubuntu ubuntu 1.2K Apr 20 server.js`,
+    task: "Read this permission string. Can ANY user execute (run) this file?",
+    hint: 'The 10 characters break down as: type + owner(rwx) + group(rwx) + others(rwx). Look for x.',
+    choices: [
+      { label: 'Yes — anyone can run it', correct: false },
+      { label: 'No — no execute permission exists', correct: true },
+      { label: 'Only the owner (ubuntu)', correct: false },
+      { label: 'Only root', correct: false },
+    ],
+    explanation: '-rw-r--r-- means: owner=read+write, group=read only, others=read only. No x (execute) anywhere. To make it executable: `chmod +x server.js`',
+  },
+  {
+    id: 6,
+    category: 'LINUX — ENV VARIABLES',
+    file: 'terminal',
+    type: 'type',
+    code: `ubuntu@server:~$ echo $PORT
+
+ubuntu@server:~$ ___`,
+    task: "PORT is empty. Set it to 8080 in this terminal session so that running `echo $PORT` returns 8080.",
+    hint: 'The command to set env vars in bash is `export`. Syntax: export NAME=VALUE',
+    answers: ['export port=8080', 'export PORT=8080'],
+    explanation: 'export PORT=8080 sets an environment variable in the current shell session. Apps read these with process.env.PORT (Node) or os.environ["PORT"] (Python). Without export, the var won\'t be visible to child processes.',
+  },
+
+  // ── CHAPTER 2: Dockerfile ──
+  {
+    id: 7,
+    category: 'DOCKERFILE — BASICS',
+    file: 'Dockerfile',
+    type: 'choice',
+    code: `___ python:3.12-slim
+
+RUN apt-get update && apt-get install -y supervisor
+WORKDIR /app
+COPY . .
+CMD ["supervisord", "-n"]`,
+    task: 'Every Dockerfile must start with a base image instruction. What keyword goes on line 1?',
+    hint: 'Think of it as "build FROM this base". It\'s the very first Dockerfile instruction.',
+    choices: [
+      { label: 'USE', correct: false },
+      { label: 'BASE', correct: false },
+      { label: 'FROM', correct: true },
+      { label: 'START', correct: false },
+    ],
+    explanation: 'FROM specifies the base image — the starting point of your container. Everything you add (RUN, COPY, etc.) builds on top of it.',
+  },
+  {
+    id: 8,
+    category: 'DOCKERFILE — COPY',
     file: 'Dockerfile',
     type: 'type',
     code: `FROM node:18-alpine
 WORKDIR /app
-COPY package*.json ./
 RUN npm install
 # ← something important is missing here
 CMD ["node", "server.js"]`,
-    task: 'server.js won\'t be inside the container when it runs. What line is missing?',
-    hint: 'You need to copy the main application file into the image before the CMD instruction.',
-    answers: ['copy server.js .', 'copy server.js ./', 'copy ./server.js .', 'copy ./server.js ./', 'copy server.js /app', 'copy server.js /app/'],
-    explanation: '`COPY server.js .` copies the source file from the build context into the working directory inside the image. Without it, node can\'t find server.js at runtime.',
+    task: "The container builds fine but crashes at runtime: 'Cannot find module server.js'. What line is missing above the CMD?",
+    hint: 'You need to bring server.js FROM your machine INTO the image.',
+    answers: ['copy server.js .', 'copy server.js ./', 'copy ./server.js .', 'copy ./server.js ./'],
+    explanation: 'COPY server.js . copies the file from your local machine (build context) into the WORKDIR inside the image. Without it, node can\'t find server.js at runtime.',
   },
   {
-    id: 3,
+    id: 9,
     category: 'SUPERVISORD CONFIG',
     file: 'supervisord.conf',
     type: 'choice',
     code: `\`\`\`ini
 [supervisord]
 nodaemon=true
-logfile=/dev/null
-logfile_maxbytes=0
 
 [program:app]
 command=node /app/server.js
 autostart=true
 autorestart=true
 \`\`\``,
-    task: 'Supervisord can\'t parse this config file. What\'s wrong with it?',
-    hint: 'Look very carefully at the very first and very last characters of the file.',
+    task: "Supervisord throws 'malformed config file' and refuses to start. Look closely at the file. What's wrong?",
+    hint: 'Look at the very first and very last characters of the file. This is not a Markdown file.',
     choices: [
-      { label: 'The [supervisord] block is incorrectly named', correct: false },
-      { label: 'The file is wrapped in markdown code fences (``` backticks) that supervisord can\'t parse', correct: true },
-      { label: 'nodaemon=true should be nodaemon=false', correct: false },
-      { label: 'logfile=/dev/null is an invalid path', correct: false },
+      { label: 'nodaemon should be set to false', correct: false },
+      { label: 'The file is wrapped in markdown code fences (``` backticks)', correct: true },
+      { label: '[program:app] should be [program:server]', correct: false },
+      { label: 'autostart and autorestart cannot both be true', correct: false },
     ],
-    explanation: 'The ``` ini ... ``` wrapping is markdown syntax. Supervisord (like all INI parsers) doesn\'t understand it — the file must contain raw config, no fences.',
+    explanation: 'The ``` ini ... ``` wrapping is Markdown syntax for code blocks. Supervisord is an INI parser — it sees the backticks and fails. The file must contain raw config only.',
   },
   {
-    id: 4,
-    category: 'DOCKER COMPOSE',
+    id: 10,
+    category: 'DOCKER COMPOSE — IMAGE',
     file: 'docker-compose.yml',
     type: 'type',
-    code: `version: "3.9"
-services:
+    code: `services:
   ai-server:
     image: python:3.12-slim
     ports:
-      - "8000:8000"
+      - "\${HOST_PORT:-8080}:\${APP_PORT:-8000}"
     environment:
-      - NODE_ENV=production`,
-    task: 'The wrong image is being pulled. What should the image value be?',
-    hint: 'The correct image is hosted on GitHub Container Registry (ghcr.io) under the athulya-cloud org.',
+      - APP_PORT=\${APP_PORT:-8000}`,
+    task: "The client pulled the wrong image — a bare Python runtime instead of your app. The correct image lives on GHCR under athulya-cloud/tooljet-ai-server. What should the image value be?",
+    hint: 'GitHub Container Registry URLs start with ghcr.io. Format: ghcr.io/owner/repo:tag',
     answers: [
       'ghcr.io/athulya-cloud/tooljet-ai-server:latest',
       'image: ghcr.io/athulya-cloud/tooljet-ai-server:latest',
     ],
-    explanation: '`ghcr.io/athulya-cloud/tooljet-ai-server:latest` is the correct application-specific image. Using `python:3.12-slim` would give you a bare Python runtime with none of the app code.',
+    explanation: 'ghcr.io/athulya-cloud/tooljet-ai-server:latest is your private image. Using python:3.12-slim gives a bare Python runtime with zero app code. Notice the dynamic ports — ${HOST_PORT:-8080} means "use HOST_PORT env var, default to 8080".',
   },
 ];
 
@@ -824,14 +452,10 @@ services:
 //  STATE
 // ============================================================
 let state = {
-  levelIdx: 0,
-  score: 0,
-  timerStart: 0,
-  timerInterval: null,
-  hintUsed: false,
-  attempts: 0,
-  levelResults: [],
-  levelTimerSeconds: 0,
+  levelIdx: 0, score: 0,
+  timerStart: 0, timerInterval: null,
+  hintUsed: false, attempts: 0,
+  levelResults: [], levelTimerSeconds: 0,
 };
 
 const MAX_ATTEMPTS = 3;
@@ -840,11 +464,11 @@ const SPEED_BONUS_MAX = 200;
 const HINT_PENALTY = 50;
 
 // ============================================================
-//  MATRIX BACKGROUND
+//  MATRIX BG
 // ============================================================
-(function initMatrix() {
+(function() {
   const el = document.getElementById('matrix-bg');
-  const chars = '01アイウエオカキクケコサシスセソタチツテトナニヌネノ';
+  const chars = '01アイウエオカキクケコサシスセソ';
   let html = '';
   for (let i = 0; i < 2000; i++) {
     html += chars[Math.floor(Math.random() * chars.length)];
@@ -854,7 +478,7 @@ const HINT_PENALTY = 50;
 })();
 
 // ============================================================
-//  UTILITIES
+//  UTILS
 // ============================================================
 function $(id) { return document.getElementById(id); }
 
@@ -864,12 +488,11 @@ function showScreen(id) {
 }
 
 function setScore(n) {
-  if (n < 0) n = 0;
-  state.score = n;
+  state.score = Math.max(0, n);
   const el = $('score-display');
-  el.textContent = n;
+  el.textContent = state.score;
   el.classList.remove('pop');
-  void el.offsetWidth; // reflow
+  void el.offsetWidth;
   el.classList.add('pop');
 }
 
@@ -892,80 +515,62 @@ function stopTimer() {
   return state.levelTimerSeconds;
 }
 
-function calcSpeedBonus(seconds) {
-  // Full bonus under 10s, scales to 0 at 60s
-  if (seconds <= 10) return SPEED_BONUS_MAX;
-  if (seconds >= 60) return 0;
-  return Math.round(SPEED_BONUS_MAX * (1 - (seconds - 10) / 50));
+function calcSpeedBonus(sec) {
+  if (sec <= 10) return SPEED_BONUS_MAX;
+  if (sec >= 60) return 0;
+  return Math.round(SPEED_BONUS_MAX * (1 - (sec - 10) / 50));
 }
 
-function normalizeAnswer(str) {
-  return str.trim().toLowerCase().replace(/\s+/g, ' ');
-}
+function normalize(str) { return str.trim().toLowerCase().replace(/\s+/g, ' '); }
 
 // ============================================================
 //  GAME FLOW
 // ============================================================
 function startGame() {
-  state.levelIdx = 0;
-  state.score = 0;
-  state.levelResults = [];
+  state.levelIdx = 0; state.score = 0; state.levelResults = [];
   setScore(0);
   showScreen('game');
   loadLevel(0);
 }
 
-function resetGame() {
-  startGame();
-}
+function resetGame() { startGame(); }
 
 function loadLevel(idx) {
   const lvl = LEVELS[idx];
-  state.hintUsed = false;
-  state.attempts = 0;
+  state.hintUsed = false; state.attempts = 0;
 
-  // Header
   $('level-badge').textContent = `LEVEL ${idx + 1} / ${LEVELS.length}`;
   $('level-title').textContent = lvl.category;
   $('level-indicator').textContent = `LEVEL ${idx + 1}/${LEVELS.length}`;
   $('file-label').textContent = lvl.file;
-
-  // Progress bar
   $('progress-bar').style.width = (idx / LEVELS.length * 100) + '%';
-
-  // Code display
-  $('code-display').innerHTML = formatCode(lvl.code, lvl.id);
-
-  // Task
+  $('code-display').innerHTML = formatCode(lvl);
   $('task-text').textContent = lvl.task;
 
-  // Hint
   $('hint-box').textContent = '';
   $('hint-box').classList.remove('visible');
   $('hint-btn').disabled = false;
   $('hint-btn').style.opacity = '1';
 
-  // Feedback
+  $('explain-box').textContent = '';
+  $('explain-box').classList.remove('visible');
+
   $('feedback-bar').textContent = '';
   $('feedback-bar').className = 'feedback-bar';
 
-  // Attempts dots
   const ar = $('attempts-row');
   ar.innerHTML = '';
   for (let i = 0; i < MAX_ATTEMPTS; i++) {
     const d = document.createElement('div');
-    d.className = 'attempt-dot';
-    d.id = `dot-${i}`;
+    d.className = 'attempt-dot'; d.id = `dot-${i}`;
     ar.appendChild(d);
   }
 
-  // Answer UI
   if (lvl.type === 'type') {
     $('type-answer-section').style.display = 'flex';
     $('choices-section').style.display = 'none';
-    $('answer-input').value = '';
-    $('answer-input').className = '';
-    $('answer-input').focus();
+    const inp = $('answer-input');
+    inp.value = ''; inp.className = ''; inp.focus();
   } else {
     $('type-answer-section').style.display = 'none';
     $('choices-section').style.display = 'grid';
@@ -975,37 +580,35 @@ function loadLevel(idx) {
   startTimer();
 }
 
-function formatCode(code, levelId) {
-  // Escape HTML
-  let html = code
+function formatCode(lvl) {
+  let html = lvl.code
     .replace(/&/g, '&amp;')
     .replace(/</g, '&lt;')
     .replace(/>/g, '&gt;');
 
-  // Level-specific highlighting
-  if (levelId === 1) {
-    html = html.replace('apt-get install supervisor',
-      'apt-get install supervisor<span class="highlight-bad"> ← no -y flag!</span>');
-  }
-  if (levelId === 2) {
-    html = html.replace('# ← something important is missing here',
-      '<span class="highlight-bad"># ← something important is missing here</span>');
-  }
-  if (levelId === 3) {
+  const id = lvl.id;
+  if (id === 2) html = html.replace('___', '<span class="highlight-bad">___</span>');
+  if (id === 4) html = html.replace('apt-get install supervisor', 'apt-get install supervisor<span class="highlight-bad"> ← no -y !</span>');
+  if (id === 7) html = html.replace('___', '<span class="highlight-bad">___</span>');
+  if (id === 8) html = html.replace('# ← something important is missing here', '<span class="highlight-bad"># ← something important is missing here</span>');
+  if (id === 9) {
+    // highlight only the fence lines, not the content
     html = html.replace('```ini', '<span class="highlight-bad">```ini</span>');
-    html = html.replace('```', '<span class="highlight-bad">```</span>');
+    // replace the closing fence at the end
+    const lastFence = html.lastIndexOf('```');
+    if (lastFence >= 0) {
+      html = html.substring(0, lastFence) + '<span class="highlight-bad">```</span>' + html.substring(lastFence + 3);
+    }
   }
-  if (levelId === 4) {
-    html = html.replace('image: python:3.12-slim',
-      'image: <span class="highlight-bad">python:3.12-slim</span>');
-  }
+  if (id === 10) html = html.replace('python:3.12-slim', '<span class="highlight-bad">python:3.12-slim</span>');
+
   return html;
 }
 
 function buildChoices(choices) {
   const grid = $('choices-section');
   grid.innerHTML = '';
-  choices.forEach((c, i) => {
+  choices.forEach(c => {
     const btn = document.createElement('button');
     btn.className = 'choice-btn';
     btn.textContent = c.label;
@@ -1018,30 +621,21 @@ function buildChoices(choices) {
 //  ANSWER HANDLING
 // ============================================================
 function submitAnswer() {
-  const lvl = LEVELS[state.levelIdx];
   const raw = $('answer-input').value;
-  const norm = normalizeAnswer(raw);
-  if (!norm) return;
-
-  const correct = lvl.answers.some(a => normalizeAnswer(a) === norm);
+  if (!normalize(raw)) return;
+  const lvl = LEVELS[state.levelIdx];
+  const correct = lvl.answers.some(a => normalize(a) === normalize(raw));
   handleResult(correct, $('answer-input'));
 }
 
-// Allow Enter key
-$('answer-input').addEventListener('keydown', function(e) {
-  if (e.key === 'Enter') submitAnswer();
-});
+$('answer-input').addEventListener('keydown', e => { if (e.key === 'Enter') submitAnswer(); });
 
 function handleChoiceClick(btn, correct, choices) {
-  // Disable all choices
   $('choices-section').querySelectorAll('.choice-btn').forEach(b => b.disabled = true);
   btn.classList.add(correct ? 'correct-choice' : 'wrong-choice');
   if (!correct) {
-    // Show correct one
     const allBtns = $('choices-section').querySelectorAll('.choice-btn');
-    choices.forEach((c, i) => {
-      if (c.correct) allBtns[i].classList.add('correct-choice');
-    });
+    choices.forEach((c, i) => { if (c.correct) allBtns[i].classList.add('correct-choice'); });
   }
   handleResult(correct, btn);
 }
@@ -1055,67 +649,51 @@ function handleResult(correct, inputEl) {
     const gained = Math.max(BASE_POINTS + speedBonus - hintPenalty - wrongPenalty, 50);
 
     setScore(state.score + gained);
-
-    // Attempt dot
     const dot = $(`dot-${state.attempts}`);
     if (dot) dot.classList.add('correct');
 
-    // Input flash
-    if (inputEl && inputEl.tagName === 'INPUT') {
-      inputEl.classList.add('correct-flash');
-    }
+    if (inputEl && inputEl.tagName === 'INPUT') inputEl.classList.add('correct-flash');
 
-    // Feedback
     const fb = $('feedback-bar');
     fb.className = 'feedback-bar correct';
-    fb.innerHTML = `&#10004; CORRECT! +${gained} pts  <span style="color:var(--text-muted);font-size:0.75rem">(speed +${speedBonus}${state.hintUsed ? ' hint -' + HINT_PENALTY : ''}${state.attempts > 0 ? ' wrong -' + wrongPenalty : ''})</span>`;
+    fb.innerHTML = `&#10004; CORRECT! +${gained} pts <span style="color:var(--text-muted);font-size:0.75rem">(speed +${speedBonus}${state.hintUsed ? ' hint -' + HINT_PENALTY : ''}${state.attempts > 0 ? ' wrong -' + wrongPenalty : ''})</span>`;
 
-    // Level result
-    state.levelResults.push({
-      level: state.levelIdx + 1,
-      category: LEVELS[state.levelIdx].category,
-      pts: gained,
-      seconds,
-    });
+    // Show explanation
+    const eb = $('explain-box');
+    eb.textContent = LEVELS[state.levelIdx].explanation;
+    eb.classList.add('visible');
 
-    // Show explanation briefly, then advance
-    setTimeout(() => {
-      advanceLevel();
-    }, 1400);
+    state.levelResults.push({ level: state.levelIdx + 1, category: LEVELS[state.levelIdx].category, pts: gained, seconds });
+    setTimeout(advanceLevel, 2500);
 
   } else {
     state.attempts++;
-
-    // Wrong dot
     const dot = $(`dot-${state.attempts - 1}`);
     if (dot) dot.classList.add('used');
 
-    // Input flash
     if (inputEl && inputEl.tagName === 'INPUT') {
       inputEl.classList.remove('wrong-flash');
       void inputEl.offsetWidth;
       inputEl.classList.add('wrong-flash');
       setTimeout(() => inputEl.classList.remove('wrong-flash'), 500);
-      inputEl.value = '';
-      inputEl.focus();
+      inputEl.value = ''; inputEl.focus();
     }
 
     const fb = $('feedback-bar');
     fb.className = 'feedback-bar wrong';
 
     if (state.attempts >= MAX_ATTEMPTS) {
-      // Out of attempts — reveal answer and move on
       const lvl = LEVELS[state.levelIdx];
       const answer = lvl.type === 'type' ? lvl.answers[0] : lvl.choices.find(c => c.correct).label;
       fb.innerHTML = `&#10008; Out of tries. Answer: <code style="color:var(--amber)">${answer}</code>`;
       stopTimer();
-      state.levelResults.push({
-        level: state.levelIdx + 1,
-        category: lvl.category,
-        pts: 0,
-        seconds: state.levelTimerSeconds,
-      });
-      setTimeout(() => advanceLevel(), 2200);
+
+      const eb = $('explain-box');
+      eb.textContent = lvl.explanation;
+      eb.classList.add('visible');
+
+      state.levelResults.push({ level: state.levelIdx + 1, category: lvl.category, pts: 0, seconds: state.levelTimerSeconds });
+      setTimeout(advanceLevel, 2800);
     } else {
       const left = MAX_ATTEMPTS - state.attempts;
       fb.textContent = `\u2718 Nope. ${left} attempt${left !== 1 ? 's' : ''} left.`;
@@ -1125,17 +703,14 @@ function handleResult(correct, inputEl) {
 
 function advanceLevel() {
   state.levelIdx++;
-  if (state.levelIdx >= LEVELS.length) {
-    endGame();
-  } else {
-    loadLevel(state.levelIdx);
-  }
+  if (state.levelIdx >= LEVELS.length) endGame();
+  else loadLevel(state.levelIdx);
 }
 
 function showHint() {
   const lvl = LEVELS[state.levelIdx];
   state.hintUsed = true;
-  setScore(Math.max(state.score - HINT_PENALTY, 0));
+  setScore(state.score - HINT_PENALTY);
   $('hint-box').textContent = lvl.hint;
   $('hint-box').classList.add('visible');
   $('hint-btn').disabled = true;
@@ -1154,35 +729,24 @@ function endGame() {
   $('final-score').textContent = score;
 
   let rank, title;
-  if (score >= 1800) { rank = 'SENIOR SRE'; title = 'SHIP: FULLY OPERATIONAL'; }
-  else if (score >= 1200) { rank = 'DEVOPS ENGINEER'; title = 'SHIP: MOSTLY FIXED'; }
-  else if (score >= 600) { rank = 'JUNIOR DEVOPS'; title = 'SHIP: LIMPING ALONG'; }
+  if (score >= 4000) { rank = 'SENIOR SRE'; title = 'SHIP: FULLY OPERATIONAL'; }
+  else if (score >= 2500) { rank = 'DEVOPS ENGINEER'; title = 'SHIP: MOSTLY FIXED'; }
+  else if (score >= 1200) { rank = 'JUNIOR DEVOPS'; title = 'SHIP: LIMPING ALONG'; }
   else { rank = 'INTERN'; title = 'SHIP: STILL BROKEN'; }
 
   $('end-title').textContent = title;
   $('rank-label').textContent = '// RANK: ' + rank + ' //';
 
-  // Breakdown
   let html = '<h3>LEVEL BREAKDOWN</h3>';
   state.levelResults.forEach(r => {
-    const ptsClass = r.pts > 0 ? 'pts' : 'pts neg';
-    html += `<div class="breakdown-row">
-      <span>LVL ${r.level}: ${r.category}</span>
-      <span class="${ptsClass}">${r.pts > 0 ? '+' + r.pts : 0} pts</span>
-    </div>`;
+    html += `<div class="breakdown-row"><span>LVL ${r.level}: ${r.category}</span><span class="${r.pts > 0 ? 'pts' : 'pts neg'}">${r.pts > 0 ? '+' + r.pts : 0} pts</span></div>`;
   });
-  html += `<div class="breakdown-row" style="margin-top:8px;padding-top:8px;border-top:1px solid var(--border)">
-    <span><strong>TOTAL</strong></span>
-    <span class="pts">${score}</span>
-  </div>`;
+  html += `<div class="breakdown-row" style="margin-top:8px;padding-top:8px;border-top:1px solid var(--border)"><span><strong>TOTAL</strong></span><span class="pts">${score}</span></div>`;
   $('score-breakdown').innerHTML = html;
 
   showScreen('end');
 }
 
-// ============================================================
-//  BOOT
-// ============================================================
 showScreen('splash');
 $('timer-display').textContent = '00:00';
 </script>
