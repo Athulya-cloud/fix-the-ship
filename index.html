@@ -6,261 +6,234 @@
 <title>Fix the Ship 🚢</title>
 <style>
   :root {
-    --green: #00ff41; --green-dim: #00cc33; --green-dark: #004d14;
-    --amber: #ffb700; --red: #ff3333; --blue: #00cfff;
-    --bg: #0a0a0a; --surface: #111; --surface2: #1a1a1a;
-    --border: #1f3f1f; --muted: #4a7a4a;
+    --green:#00ff41;--green-dim:#00cc33;--green-dark:#004d14;
+    --amber:#ffb700;--red:#ff3333;--blue:#00cfff;
+    --bg:#0a0a0a;--surface:#111;--surface2:#1a1a1a;
+    --border:#1f3f1f;--muted:#4a7a4a;
   }
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body {
-    background: var(--bg); color: var(--green);
-    font-family: 'Courier New', monospace;
-    min-height: 100vh; display: flex; flex-direction: column;
-    align-items: center; padding: 16px; overflow-x: hidden;
-  }
-  body::after {
-    content: ''; position: fixed; inset: 0; pointer-events: none; z-index: 9999;
-    background: repeating-linear-gradient(to bottom, transparent 0, transparent 3px, rgba(0,0,0,0.07) 3px, rgba(0,0,0,0.07) 4px);
-  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{background:var(--bg);color:var(--green);font-family:'Courier New',monospace;
+    min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:16px;overflow-x:hidden;}
+  body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;
+    background:repeating-linear-gradient(to bottom,transparent 0,transparent 3px,rgba(0,0,0,0.07) 3px,rgba(0,0,0,0.07) 4px);}
 
-  @keyframes flicker { 0%,100%{opacity:1}93%{opacity:.85}94%{opacity:1}97%{opacity:.92}98%{opacity:1} }
-  @keyframes blink { 0%,100%{opacity:1}50%{opacity:0} }
-  @keyframes slideIn { from{transform:translateY(-16px);opacity:0}to{transform:translateY(0);opacity:1} }
-  @keyframes slideUp { from{transform:translateY(14px);opacity:0}to{transform:translateY(0);opacity:1} }
-  @keyframes shake { 0%,100%{transform:translateX(0)}20%{transform:translateX(-8px)}40%{transform:translateX(8px)}60%{transform:translateX(-5px)}80%{transform:translateX(5px)} }
-  @keyframes pop { 0%{transform:scale(1.5);color:var(--amber)}100%{transform:scale(1);color:var(--green)} }
-  @keyframes fadeIn { from{opacity:0}to{opacity:1} }
-  @keyframes glow { 0%,100%{box-shadow:0 0 6px var(--green)}50%{box-shadow:0 0 18px var(--green),0 0 32px var(--green-dark)} }
-  @keyframes streakBounce { 0%{transform:scale(1)}30%{transform:scale(1.4)}100%{transform:scale(1)} }
+  @keyframes flicker{0%,100%{opacity:1}93%{opacity:.85}94%{opacity:1}97%{opacity:.92}98%{opacity:1}}
+  @keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
+  @keyframes slideIn{from{transform:translateY(-16px);opacity:0}to{transform:translateY(0);opacity:1}}
+  @keyframes slideUp{from{transform:translateY(14px);opacity:0}to{transform:translateY(0);opacity:1}}
+  @keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-8px)}40%{transform:translateX(8px)}60%{transform:translateX(-5px)}80%{transform:translateX(5px)}}
+  @keyframes pop{0%{transform:scale(1.5);color:var(--amber)}100%{transform:scale(1);color:var(--green)}}
+  @keyframes fadeIn{from{opacity:0}to{opacity:1}}
+  @keyframes glow{0%,100%{box-shadow:0 0 6px rgba(255,51,51,0.3)}50%{box-shadow:0 0 18px rgba(255,51,51,0.6)}}
+  @keyframes streakPop{0%{transform:scale(1)}40%{transform:scale(1.5)}100%{transform:scale(1)}}
+  body{animation:flicker 10s infinite;}
 
-  body { animation: flicker 10s infinite; }
+  /* HEADER */
+  #hdr{width:100%;max-width:800px;display:flex;justify-content:space-between;align-items:center;
+    padding:10px 16px;border:1px solid var(--border);background:var(--surface);margin-bottom:14px;border-radius:4px;gap:8px;}
+  #logo{font-size:1rem;font-weight:bold;letter-spacing:2px;text-transform:uppercase;white-space:nowrap;}
+  #logo .s{color:var(--amber);}
+  #hdr-r{display:flex;gap:16px;align-items:center;font-size:0.8rem;flex-wrap:wrap;justify-content:flex-end;}
+  #score-val{font-size:1.05rem;font-weight:bold;}
+  #score-val.pop{animation:pop 0.4s ease;}
+  #streak{background:var(--amber);color:#000;font-weight:bold;padding:2px 8px;border-radius:2px;font-size:0.75rem;display:none;}
+  #streak.on{display:inline-block;animation:streakPop 0.4s ease;}
+  #timer-val{color:var(--muted);}
+  #timer-val.hot{color:var(--amber);animation:blink 0.7s infinite;}
+  #lvl-hdr-ind{color:var(--muted);font-size:0.75rem;}
 
-  /* ── HEADER ── */
-  #hdr {
-    width:100%; max-width:800px; display:flex; justify-content:space-between;
-    align-items:center; padding:10px 16px; border:1px solid var(--border);
-    background:var(--surface); margin-bottom:14px; border-radius:4px; gap:10px;
-  }
-  #logo { font-size:1.05rem; font-weight:bold; letter-spacing:2px; text-transform:uppercase; white-space:nowrap; }
-  #logo .ship { color:var(--amber); }
-  #hdr-right { display:flex; gap:18px; align-items:center; font-size:0.82rem; flex-wrap:wrap; justify-content:flex-end; }
-  #score-val { font-size:1.1rem; font-weight:bold; }
-  #score-val.pop { animation: pop 0.4s ease; }
-  #streak-badge { background:var(--amber); color:#000; font-weight:bold; padding:2px 8px; border-radius:2px; font-size:0.78rem; display:none; animation: streakBounce 0.4s ease; }
-  #timer-val { color:var(--muted); }
-  #timer-val.hot { color:var(--amber); animation: blink 0.7s infinite; }
-  #lvl-ind { color:var(--muted); font-size:0.78rem; white-space:nowrap; }
+  /* PROGRESS */
+  #prog-wrap{width:100%;max-width:800px;height:4px;background:var(--surface);border:1px solid var(--border);border-radius:2px;margin-bottom:16px;}
+  #prog{height:100%;background:var(--green);border-radius:2px;transition:width 0.5s ease;box-shadow:0 0 8px var(--green);}
 
-  /* ── PROGRESS ── */
-  #prog-wrap { width:100%; max-width:800px; height:4px; background:var(--surface); border:1px solid var(--border); border-radius:2px; margin-bottom:16px; }
-  #prog-bar { height:100%; background:var(--green); border-radius:2px; transition:width 0.5s ease; box-shadow:0 0 8px var(--green); }
+  /* SCREENS */
+  .screen{width:100%;max-width:800px;display:none;}
+  .screen.active{display:block;animation:slideIn 0.35s ease;}
 
-  /* ── SCREENS ── */
-  .screen { width:100%; max-width:800px; display:none; }
-  .screen.active { display:block; animation:slideIn 0.35s ease; }
+  /* SPLASH */
+  #splash{text-align:center;padding:36px 16px;}
+  #splash h1{font-size:clamp(2rem,9vw,3.8rem);letter-spacing:4px;text-transform:uppercase;
+    text-shadow:0 0 24px var(--green),0 0 48px var(--green-dark);margin-bottom:6px;}
+  #splash h1 .s{color:var(--amber);}
+  .tagline{color:var(--muted);font-size:0.85rem;letter-spacing:2px;margin-bottom:16px;}
+  .incident{background:rgba(255,51,51,0.07);border:1px solid var(--red);border-radius:4px;
+    padding:16px 18px;margin:16px 0;text-align:left;animation:glow 2.5s infinite;}
+  .incident-title{color:var(--red);font-size:0.7rem;letter-spacing:3px;margin-bottom:10px;}
+  .incident pre{font-size:0.78rem;line-height:1.85;color:#bbb;white-space:pre-wrap;}
+  .incident pre .e{color:var(--red);}
+  .incident pre .w{color:var(--amber);}
+  .incident pre .g{color:var(--green);}
+  .chapters{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin:20px 0 28px;text-align:left;}
+  .ch{background:var(--surface);border:1px solid var(--border);border-radius:4px;padding:12px 14px;}
+  .ch-num{font-size:0.65rem;color:var(--muted);letter-spacing:2px;margin-bottom:3px;}
+  .ch-name{font-size:0.85rem;color:var(--green);margin-bottom:3px;}
+  .ch-topics{font-size:0.7rem;color:var(--muted);}
 
-  /* ── SPLASH ── */
-  #splash { text-align:center; padding:36px 20px; }
-  #splash h1 { font-size:clamp(2rem,9vw,3.8rem); letter-spacing:4px; text-transform:uppercase; text-shadow:0 0 24px var(--green),0 0 48px var(--green-dark); margin-bottom:6px; }
-  #splash h1 .ship { color:var(--amber); }
-  .tagline { color:var(--muted); font-size:0.88rem; letter-spacing:2px; margin-bottom:12px; }
-  .alert-box {
-    background:rgba(255,51,51,0.08); border:1px solid var(--red);
-    border-radius:4px; padding:18px 20px; margin:20px 0; text-align:left; animation: glow 2s infinite;
-  }
-  .alert-box .alert-title { color:var(--red); font-size:0.75rem; letter-spacing:3px; margin-bottom:10px; }
-  .alert-box pre { font-size:0.8rem; line-height:1.8; color:#ccc; white-space:pre-wrap; }
-  .alert-box pre .err { color:var(--red); }
-  .alert-box pre .warn { color:var(--amber); }
-  .alert-box pre .ok { color:var(--green); }
-  .chapters { display:grid; grid-template-columns:repeat(2,1fr); gap:10px; margin:22px 0 28px; text-align:left; }
-  .ch-card { background:var(--surface); border:1px solid var(--border); border-radius:4px; padding:12px 14px; }
-  .ch-card .ch-num { font-size:0.68rem; color:var(--muted); letter-spacing:2px; margin-bottom:4px; }
-  .ch-card .ch-name { font-size:0.88rem; color:var(--green); margin-bottom:3px; }
-  .ch-card .ch-topics { font-size:0.72rem; color:var(--muted); }
+  /* MISSION */
+  .mission{background:rgba(0,207,255,0.05);border:1px solid rgba(0,207,255,0.2);
+    border-left:3px solid var(--blue);border-radius:4px;padding:11px 15px;margin-bottom:12px;
+    font-size:0.82rem;color:var(--blue);line-height:1.5;animation:slideUp 0.3s ease;}
+  .mission::before{content:'📡 MISSION  ';font-size:0.68rem;opacity:0.65;}
 
-  /* ── MISSION BRIEFING ── */
-  .mission-box {
-    background:rgba(0,207,255,0.05); border:1px solid rgba(0,207,255,0.2);
-    border-left:3px solid var(--blue); border-radius:4px;
-    padding:12px 16px; margin-bottom:12px; font-size:0.82rem; color:var(--blue);
-    line-height:1.5; animation:slideUp 0.3s ease;
-  }
-  .mission-box::before { content:'📡 MISSION: '; font-size:0.7rem; opacity:0.7; }
+  /* CONCEPT BADGE */
+  .concept{display:inline-block;background:var(--surface2);border:1px solid var(--border);
+    padding:2px 10px;font-size:0.68rem;letter-spacing:2px;color:var(--muted);border-radius:2px;margin-bottom:10px;}
 
-  /* ── CODE PANEL ── */
-  .code-panel { background:var(--surface); border:1px solid var(--border); border-radius:4px; margin-bottom:14px; overflow:hidden; }
-  .panel-bar { background:var(--surface2); border-bottom:1px solid var(--border); padding:6px 14px; font-size:0.7rem; color:var(--muted); display:flex; justify-content:space-between; align-items:center; letter-spacing:1px; }
-  .dots { display:flex; gap:5px; }
-  .dot { width:9px; height:9px; border-radius:50%; }
+  /* CODE PANEL */
+  .code-panel{background:var(--surface);border:1px solid var(--border);border-radius:4px;margin-bottom:13px;overflow:hidden;}
+  .panel-bar{background:var(--surface2);border-bottom:1px solid var(--border);padding:6px 14px;
+    font-size:0.68rem;color:var(--muted);display:flex;justify-content:space-between;align-items:center;letter-spacing:1px;}
+  .dots{display:flex;gap:5px;}
+  .dot{width:9px;height:9px;border-radius:50%;}
   .dr{background:#ff5f57;}.dy{background:#ffbd2e;}.dg{background:#28ca41;}
-  .code-body { padding:14px 18px; overflow-x:auto; }
-  .code-body pre { font-size:0.82rem; line-height:1.8; color:var(--green-dim); white-space:pre; tab-size:2; }
-  .bad { background:rgba(255,51,51,0.15); border-bottom:2px solid var(--red); color:#ff6666; border-radius:2px; padding:0 2px; }
+  .code-body{padding:14px 18px;overflow-x:auto;}
+  .code-body pre{font-size:0.82rem;line-height:1.85;color:var(--green-dim);white-space:pre;tab-size:2;}
+  .bad{background:rgba(255,51,51,0.15);border-bottom:2px solid var(--red);color:#ff7777;border-radius:2px;padding:0 2px;}
+  .ok-code{color:var(--green);}
+  .dim-code{color:var(--muted);}
 
-  /* ── TASK BOX ── */
-  .task-box { background:var(--surface); border:1px solid var(--border); border-left:3px solid var(--amber); border-radius:4px; padding:13px 16px; margin-bottom:12px; font-size:0.88rem; line-height:1.6; color:var(--amber); animation:slideUp 0.3s ease; }
-  .task-box::before { content:'▶ '; }
+  /* TASK / HINT / EXPLAIN */
+  .task{background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--amber);
+    border-radius:4px;padding:12px 15px;margin-bottom:11px;font-size:0.87rem;line-height:1.6;color:var(--amber);}
+  .task::before{content:'▶  ';}
+  .hint-box{background:rgba(0,80,0,0.3);border:1px solid var(--green-dark);border-radius:4px;
+    padding:10px 15px;margin-bottom:10px;font-size:0.8rem;color:var(--green-dim);display:none;line-height:1.5;}
+  .hint-box.on{display:block;animation:slideUp 0.3s ease;}
+  .hint-box::before{content:'💡 HINT  ';color:var(--green);font-size:0.68rem;}
+  .explain{background:rgba(0,40,10,0.6);border:1px solid var(--green);border-radius:4px;
+    padding:13px 15px;margin-bottom:10px;font-size:0.8rem;color:var(--green-dim);display:none;line-height:1.65;}
+  .explain.on{display:block;animation:fadeIn 0.5s ease;}
+  .explain::before{content:'🧠 WHY  ';color:var(--green);font-size:0.68rem;font-weight:bold;}
 
-  /* ── HINT / EXPLAIN ── */
-  .hint-box { background:rgba(0,80,0,0.3); border:1px solid var(--green-dark); border-radius:4px; padding:11px 16px; margin-bottom:10px; font-size:0.82rem; color:var(--green-dim); display:none; animation:slideUp 0.3s ease; line-height:1.5; }
-  .hint-box.on { display:block; }
-  .hint-box::before { content:'💡 HINT: '; color:var(--green); font-size:0.72rem; }
-  .explain-box { background:rgba(0,50,10,0.5); border:1px solid var(--green); border-radius:4px; padding:13px 16px; margin-bottom:10px; font-size:0.82rem; color:var(--green-dim); display:none; animation:fadeIn 0.5s ease; line-height:1.6; }
-  .explain-box.on { display:block; }
-  .explain-box::before { content:'🧠 WHY: '; color:var(--green); font-size:0.72rem; font-weight:bold; }
+  /* ATTEMPTS */
+  .tries{display:flex;gap:6px;margin-bottom:11px;align-items:center;}
+  .td{width:10px;height:10px;border-radius:50%;background:var(--border);transition:background 0.2s;}
+  .td.x{background:var(--red);}
+  .td.ok{background:var(--green);box-shadow:0 0 6px var(--green);}
+  .tries-lbl{font-size:0.68rem;color:var(--muted);margin-left:5px;}
 
-  /* ── ATTEMPTS ── */
-  .tries { display:flex; gap:6px; margin-bottom:12px; align-items:center; }
-  .try-dot { width:10px; height:10px; border-radius:50%; background:var(--border); transition:background 0.2s; }
-  .try-dot.x { background:var(--red); }
-  .try-dot.ok { background:var(--green); box-shadow:0 0 6px var(--green); }
-  .tries-label { font-size:0.72rem; color:var(--muted); margin-left:6px; }
+  /* FEEDBACK */
+  .fb{min-height:26px;display:flex;align-items:center;font-size:0.83rem;margin-bottom:8px;}
+  .fb.ok{color:var(--green);}
+  .fb.err{color:var(--red);}
 
-  /* ── FEEDBACK ── */
-  .fb { min-height:28px; display:flex; align-items:center; font-size:0.85rem; margin-bottom:8px; }
-  .fb.ok { color:var(--green); }
-  .fb.err { color:var(--red); }
+  /* INPUT */
+  .ans-row{display:flex;gap:10px;margin-bottom:12px;flex-wrap:wrap;}
+  #ans-inp{flex:1;min-width:180px;background:var(--surface);border:1px solid var(--border);
+    border-radius:2px;color:var(--green);font-family:inherit;font-size:0.88rem;
+    padding:10px 13px;outline:none;caret-color:var(--green);transition:border-color 0.15s,box-shadow 0.15s;}
+  #ans-inp:focus{border-color:var(--green);box-shadow:0 0 8px var(--green-dark);}
+  #ans-inp::placeholder{color:var(--muted);}
+  #ans-inp.flash-ok{border-color:var(--green)!important;box-shadow:0 0 20px var(--green)!important;background:rgba(0,255,65,0.07)!important;}
+  #ans-inp.flash-err{border-color:var(--red)!important;animation:shake 0.4s ease;}
 
-  /* ── INPUT ── */
-  .ans-row { display:flex; gap:10px; margin-bottom:12px; flex-wrap:wrap; }
-  #ans-inp {
-    flex:1; min-width:200px; background:var(--surface); border:1px solid var(--border);
-    border-radius:2px; color:var(--green); font-family:inherit; font-size:0.9rem;
-    padding:11px 14px; outline:none; caret-color:var(--green);
-    transition:border-color 0.15s, box-shadow 0.15s;
-  }
-  #ans-inp:focus { border-color:var(--green); box-shadow:0 0 8px var(--green-dark); }
-  #ans-inp::placeholder { color:var(--muted); }
-  #ans-inp.flash-ok { border-color:var(--green)!important; box-shadow:0 0 20px var(--green)!important; background:rgba(0,255,65,0.07)!important; }
-  #ans-inp.flash-err { border-color:var(--red)!important; animation:shake 0.4s ease; }
+  /* CHOICES */
+  .choices{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:10px;margin-bottom:12px;}
+  .ch-btn{background:var(--surface);border:1px solid var(--border);color:var(--green-dim);
+    font-family:inherit;font-size:0.82rem;padding:13px 14px;cursor:pointer;
+    text-align:left;border-radius:3px;transition:border-color 0.15s,color 0.15s,background 0.15s;line-height:1.5;word-break:break-word;}
+  .ch-btn:hover{border-color:var(--green);color:var(--green);background:rgba(0,255,65,0.04);}
+  .ch-btn.ok{border-color:var(--green)!important;color:var(--green)!important;background:rgba(0,255,65,0.1)!important;box-shadow:0 0 10px var(--green-dark);}
+  .ch-btn.err{border-color:var(--red)!important;color:var(--red)!important;background:rgba(255,51,51,0.08)!important;animation:shake 0.4s ease;}
+  .ch-btn:disabled{cursor:default;}
 
-  /* ── CHOICES ── */
-  .choices { display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:10px; margin-bottom:12px; }
-  .ch-btn {
-    background:var(--surface); border:1px solid var(--border); color:var(--green-dim);
-    font-family:inherit; font-size:0.83rem; padding:13px 14px; cursor:pointer;
-    text-align:left; border-radius:3px; transition:border-color 0.15s,color 0.15s,background 0.15s;
-    line-height:1.5; word-break:break-word;
-  }
-  .ch-btn:hover { border-color:var(--green); color:var(--green); background:rgba(0,255,65,0.04); }
-  .ch-btn.ok { border-color:var(--green)!important; color:var(--green)!important; background:rgba(0,255,65,0.1)!important; box-shadow:0 0 10px var(--green-dark); }
-  .ch-btn.err { border-color:var(--red)!important; color:var(--red)!important; background:rgba(255,51,51,0.08)!important; animation:shake 0.4s ease; }
-  .ch-btn:disabled { cursor:default; }
+  /* BUTTONS */
+  .btn{background:transparent;border:1px solid var(--green);color:var(--green);font-family:inherit;
+    font-size:0.92rem;padding:10px 26px;cursor:pointer;text-transform:uppercase;letter-spacing:3px;
+    border-radius:2px;transition:background 0.15s,box-shadow 0.15s,transform 0.1s;position:relative;overflow:hidden;}
+  .btn::before{content:'';position:absolute;inset:0;background:var(--green);opacity:0;transition:opacity 0.15s;}
+  .btn:hover::before{opacity:0.1;}
+  .btn:hover{box-shadow:0 0 14px var(--green-dark);transform:translateY(-1px);}
+  .btn:active{transform:translateY(0);}
+  .btn-sm{font-size:0.7rem;padding:7px 13px;letter-spacing:2px;}
+  .btn-amber{border-color:var(--amber);color:var(--amber);}
+  .btn-amber::before{background:var(--amber);}
+  .btn-amber:hover{box-shadow:0 0 12px rgba(255,183,0,0.3);}
 
-  /* ── BUTTONS ── */
-  .btn {
-    background:transparent; border:1px solid var(--green); color:var(--green);
-    font-family:inherit; font-size:0.95rem; padding:11px 28px; cursor:pointer;
-    text-transform:uppercase; letter-spacing:3px; border-radius:2px;
-    transition:background 0.15s,box-shadow 0.15s,transform 0.1s; position:relative; overflow:hidden;
-  }
-  .btn::before { content:''; position:absolute; inset:0; background:var(--green); opacity:0; transition:opacity 0.15s; }
-  .btn:hover::before { opacity:0.1; }
-  .btn:hover { box-shadow:0 0 14px var(--green-dark); transform:translateY(-1px); }
-  .btn:active { transform:translateY(0); }
-  .btn-sm { font-size:0.72rem; padding:7px 14px; letter-spacing:2px; }
-  .btn-amber { border-color:var(--amber); color:var(--amber); }
-  .btn-amber::before { background:var(--amber); }
-  .btn-amber:hover { box-shadow:0 0 12px rgba(255,183,0,0.3); }
+  .lvl-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:8px;}
+  .lvl-badge{background:var(--surface);border:1px solid var(--border);padding:3px 11px;font-size:0.7rem;letter-spacing:2px;color:var(--amber);border-radius:2px;}
+  .lvl-cat{font-size:0.88rem;letter-spacing:1px;color:var(--green-dim);}
+  .hint-wrap{display:flex;align-items:center;gap:6px;}
+  .hcost{font-size:0.65rem;color:var(--red);}
 
-  .lvl-hdr { display:flex; justify-content:space-between; align-items:center; margin-bottom:13px; flex-wrap:wrap; gap:8px; }
-  .lvl-badge { background:var(--surface); border:1px solid var(--border); padding:3px 11px; font-size:0.72rem; letter-spacing:2px; color:var(--amber); border-radius:2px; }
-  .lvl-cat { font-size:0.9rem; letter-spacing:1px; color:var(--green-dim); }
-  .hint-wrap { display:flex; align-items:center; gap:7px; }
-  .hint-cost { font-size:0.68rem; color:var(--red); }
+  /* END */
+  #end{text-align:center;padding:28px 16px;}
+  #end h2{font-size:clamp(1.5rem,6vw,2.6rem);letter-spacing:3px;text-shadow:0 0 20px var(--green);margin-bottom:8px;}
+  .final-pts{font-size:clamp(2.5rem,10vw,4rem);color:var(--amber);font-weight:bold;margin:12px 0;text-shadow:0 0 30px var(--amber);}
+  .rank{font-size:0.92rem;color:var(--green-dim);letter-spacing:2px;margin-bottom:22px;}
+  .breakdown{background:var(--surface);border:1px solid var(--border);border-radius:4px;padding:16px;
+    margin-bottom:22px;text-align:left;max-width:460px;margin-left:auto;margin-right:auto;}
+  .breakdown h3{font-size:0.7rem;letter-spacing:2px;color:var(--muted);margin-bottom:12px;text-align:center;}
+  .brow{display:flex;justify-content:space-between;font-size:0.78rem;padding:5px 0;border-bottom:1px solid var(--border);color:var(--green-dim);}
+  .brow:last-child{border-bottom:none;}
+  .brow .p{color:var(--green);font-weight:bold;}
+  .brow .p.z{color:var(--red);}
 
-  /* ── END ── */
-  #end { text-align:center; padding:30px 20px; }
-  #end h2 { font-size:clamp(1.5rem,6vw,2.6rem); letter-spacing:3px; text-shadow:0 0 20px var(--green); margin-bottom:8px; }
-  .final-score { font-size:clamp(2.5rem,10vw,4.2rem); color:var(--amber); font-weight:bold; margin:14px 0; text-shadow:0 0 30px var(--amber); }
-  .rank { font-size:0.95rem; color:var(--green-dim); letter-spacing:2px; margin-bottom:24px; }
-  .breakdown { background:var(--surface); border:1px solid var(--border); border-radius:4px; padding:16px; margin-bottom:24px; text-align:left; max-width:440px; margin-left:auto; margin-right:auto; }
-  .breakdown h3 { font-size:0.72rem; letter-spacing:2px; color:var(--muted); margin-bottom:12px; text-align:center; }
-  .brow { display:flex; justify-content:space-between; font-size:0.8rem; padding:5px 0; border-bottom:1px solid var(--border); color:var(--green-dim); }
-  .brow:last-child { border-bottom:none; }
-  .brow .p { color:var(--green); font-weight:bold; }
-  .brow .p.neg { color:var(--red); }
+  .cursor{display:inline-block;animation:blink 1s infinite;}
+  .mbg{position:fixed;top:0;left:0;right:0;bottom:0;z-index:-1;overflow:hidden;opacity:0.02;pointer-events:none;font-size:10px;line-height:14px;color:var(--green);word-break:break-all;}
 
-  .cursor { display:inline-block; animation:blink 1s infinite; }
-  .matrix-bg { position:fixed; top:0;left:0;right:0;bottom:0; z-index:-1; overflow:hidden; opacity:0.025; pointer-events:none; font-size:10px; line-height:14px; color:var(--green); word-break:break-all; }
-
-  @media(max-width:540px) {
-    #hdr { flex-wrap:wrap; }
-    .chapters { grid-template-columns:1fr; }
-    .ans-row { flex-direction:column; }
-    .choices { grid-template-columns:1fr; }
-    .lvl-hdr { flex-direction:column; align-items:flex-start; }
+  @media(max-width:540px){
+    #hdr{flex-wrap:wrap;}
+    .chapters{grid-template-columns:1fr;}
+    .ans-row{flex-direction:column;}
+    .choices{grid-template-columns:1fr;}
+    .lvl-top{flex-direction:column;align-items:flex-start;}
   }
 </style>
 </head>
 <body>
-<div class="matrix-bg" id="mbg"></div>
+<div class="mbg" id="mbg"></div>
 
 <div id="hdr">
-  <div id="logo">Fix the <span class="ship">Ship</span> <span class="cursor">_</span></div>
-  <div id="hdr-right">
-    <div id="lvl-ind">LVL 0/12</div>
+  <div id="logo">Fix the <span class="s">Ship</span> <span class="cursor">_</span></div>
+  <div id="hdr-r">
+    <div id="lvl-hdr-ind">LVL 0/16</div>
     <div id="timer-val">00:00</div>
-    <div id="streak-badge">🔥 x<span id="streak-num">2</span></div>
+    <div id="streak">🔥 x<span id="snum">2</span></div>
     <div>SCORE: <span id="score-val">0</span></div>
   </div>
 </div>
-<div id="prog-wrap"><div id="prog-bar" style="width:0%"></div></div>
+<div id="prog-wrap"><div id="prog" style="width:0%"></div></div>
 
-<!-- ═══════════ SPLASH ═══════════ -->
+<!-- ══ SPLASH ══ -->
 <div id="splash" class="screen active">
-  <h1>Fix the <span class="ship">Ship</span></h1>
-  <p class="tagline">// prod is down. fix it. //</p>
+  <h1>Fix the <span class="s">Ship</span></h1>
+  <p class="tagline">// prod is down · linux → docker · fix it //</p>
 
-  <div class="alert-box">
-    <div class="alert-title">⚠ INCIDENT REPORT — LIVE</div>
-    <pre><span class="err">02:14 CRIT  deployment failed — container won't start</span>
-<span class="err">02:15 CRIT  apt-get hanging on CI — build stuck 12 mins</span>
-<span class="warn">02:16 WARN  config file rejected by supervisor</span>
-<span class="warn">02:17 WARN  server.js not found inside image</span>
-<span class="ok">02:18 INFO  you just joined the call</span>
-<span class="ok">02:18 INFO  everyone is waiting...</span></pre>
+  <div class="incident">
+    <div class="incident-title">⚠ INCIDENT — P0 — ACTIVE</div>
+    <pre><span class="e">03:12 CRIT  deployment pipeline failed — unknown command</span>
+<span class="e">03:13 CRIT  apt-get hanging on CI server — 20 mins stuck</span>
+<span class="e">03:14 CRIT  container won't start — file not found</span>
+<span class="w">03:15 WARN  permission denied on SSH key</span>
+<span class="w">03:16 WARN  disk 100% — build agent dying</span>
+<span class="g">03:17 INFO  you just got paged</span>
+<span class="g">03:17 INFO  16 problems. fix them all.</span></pre>
   </div>
 
   <div class="chapters">
-    <div class="ch-card">
-      <div class="ch-num">CHAPTER 1</div>
-      <div class="ch-name">Linux Survival</div>
-      <div class="ch-topics">pwd · ls · cat · grep · chmod · env</div>
-    </div>
-    <div class="ch-card">
-      <div class="ch-num">CHAPTER 2</div>
-      <div class="ch-name">Package & Process</div>
-      <div class="ch-topics">apt-get · ps · kill · pipes · redirect</div>
-    </div>
-    <div class="ch-card">
-      <div class="ch-num">CHAPTER 3</div>
-      <div class="ch-name">Docker Fundamentals</div>
-      <div class="ch-topics">Dockerfile · FROM · COPY · RUN · CMD</div>
-    </div>
-    <div class="ch-card">
-      <div class="ch-num">CHAPTER 4</div>
-      <div class="ch-name">Deploy & Compose</div>
-      <div class="ch-topics">docker-compose · services · ports · env vars</div>
-    </div>
+    <div class="ch"><div class="ch-num">CHAPTER 1</div><div class="ch-name">Linux Survival</div><div class="ch-topics">pwd · ls · cd · cat · tail · grep</div></div>
+    <div class="ch"><div class="ch-num">CHAPTER 2</div><div class="ch-name">Power & Packages</div><div class="ch-topics">sudo · apt-get · chmod · curl · kill</div></div>
+    <div class="ch"><div class="ch-num">CHAPTER 3</div><div class="ch-name">Shell Mastery</div><div class="ch-topics">pipes · redirect · env vars · df · systemctl</div></div>
+    <div class="ch"><div class="ch-num">CHAPTER 4</div><div class="ch-name">Containers</div><div class="ch-topics">docker run · docker logs · Dockerfile · Compose</div></div>
   </div>
 
-  <button class="btn" onclick="startGame()">JOIN THE CALL &gt;&gt;</button>
+  <button class="btn" onclick="startGame()">TAKE THE CALL &gt;&gt;</button>
 </div>
 
-<!-- ═══════════ GAME ═══════════ -->
+<!-- ══ GAME ══ -->
 <div id="game" class="screen">
-  <div class="lvl-hdr">
-    <div class="lvl-badge" id="lvl-badge">LVL 1/12</div>
+  <div class="lvl-top">
+    <div class="lvl-badge" id="lvl-badge">LVL 1/16</div>
     <div class="lvl-cat" id="lvl-cat">LINUX</div>
     <div class="hint-wrap">
-      <span class="hint-cost">-50 pts</span>
+      <span class="hcost">-50 pts</span>
       <button class="btn btn-sm btn-amber" id="hint-btn" onclick="useHint()">HINT</button>
     </div>
   </div>
 
-  <div class="mission-box" id="mission-box"></div>
+  <div class="concept" id="concept-lbl">pwd</div>
+  <div class="mission" id="mission"></div>
 
   <div class="code-panel">
     <div class="panel-bar">
@@ -270,9 +243,9 @@
     <div class="code-body"><pre id="code-out"></pre></div>
   </div>
 
-  <div class="task-box" id="task-box"></div>
+  <div class="task" id="task-box"></div>
   <div class="hint-box" id="hint-box"></div>
-  <div class="explain-box" id="explain-box"></div>
+  <div class="explain" id="explain-box"></div>
 
   <div class="tries" id="tries"></div>
   <div class="fb" id="fb"></div>
@@ -284,347 +257,351 @@
   <div class="choices" id="choice-sec" style="display:none"></div>
 </div>
 
-<!-- ═══════════ END ═══════════ -->
+<!-- ══ END ══ -->
 <div id="end" class="screen">
-  <h2 id="end-title">SHIP FIXED</h2>
-  <div class="final-score" id="final-pts">0</div>
+  <h2 id="end-title">INCIDENT RESOLVED</h2>
+  <div class="final-pts" id="final-pts">0</div>
   <div class="rank" id="rank-lbl">RANK: INTERN</div>
   <div class="breakdown" id="breakdown"></div>
-  <button class="btn" onclick="reset()">RETRY INCIDENT &gt;&gt;</button>
+  <button class="btn" onclick="resetGame()">RETRY INCIDENT &gt;&gt;</button>
 </div>
 
 <script>
-// ══════════════════════════════════════════════════
-//  LEVEL DATA — generic Linux → Docker
-// ══════════════════════════════════════════════════
-const L = [
-  // ── CHAPTER 1: Linux Survival ──
+// ══════════════════════════════════════════════════════════
+//  THE 16 LEVELS  — Linux → Shell → Docker industry path
+// ══════════════════════════════════════════════════════════
+const LEVELS = [
+
+  // ── CHAPTER 1: Linux Survival ──────────────────────────
   {
-    cat:'LINUX — NAVIGATION', file:'terminal', type:'choice', diff:1,
-    mission:"You SSH'd into a server. First thing: where even are you?",
-    code:`ubuntu@prod-server:~$`,
-    task:"What command prints the current directory you're in?",
-    hint:"Three letters. Stands for Print Working Directory.",
-    choices:[
-      {t:'cd',ok:false},{t:'ls',ok:false},{t:'pwd',ok:true},{t:'whoami',ok:false}
-    ],
-    why:"pwd (Print Working Directory) shows your current location in the filesystem. Essential first step on any unfamiliar server."
+    concept:'pwd — where am I?', cat:'LINUX — NAVIGATION', file:'terminal', type:'choice',
+    mission:"2am. You SSH into a prod server you've never seen. First thing: where even are you in this filesystem?",
+    code:`ubuntu@prod-01:~$ `,
+    task:"What's the first command you run on an unfamiliar server to find out your current location?",
+    hint:"Three letters. Stands for 'Print Working Directory'.",
+    choices:[{t:'ls',ok:false},{t:'cd',ok:false},{t:'pwd',ok:true},{t:'whoami',ok:false}],
+    why:"pwd (Print Working Directory) shows your exact location in the filesystem — e.g. /home/ubuntu or /var/www/app. On an unfamiliar server, knowing where you are prevents you from accidentally modifying the wrong files."
   },
+
   {
-    cat:'LINUX — FILES', file:'terminal', type:'choice', diff:1,
-    mission:"You're in /home/ubuntu. You need to see what files exist here.",
-    code:`ubuntu@prod-server:~$ pwd
+    concept:'ls — what\'s here?', cat:'LINUX — FILES', file:'terminal', type:'type',
+    mission:"You're in /var/www. You need to see what's in this directory — including hidden files like .env.",
+    code:`ubuntu@prod-01:/var/www$ `,
+    task:"What command lists ALL files including hidden ones (hidden files start with a dot)?",
+    hint:"Combine ls with two flags: -l (long format) and -a (all, including hidden).",
+    answers:['ls -la','ls -al','ls -la .','ls -al .'],
+    why:"ls -la shows everything: hidden files (like .env, .git), permissions, owner, size, and last modified time. In production, hidden files often contain secrets or config — you need to see them."
+  },
+
+  {
+    concept:'cd — navigate', cat:'LINUX — NAVIGATION', file:'terminal', type:'type',
+    mission:"Logs live in /var/log/nginx. You're currently in /home/ubuntu. Get there.",
+    code:`ubuntu@prod-01:~$ pwd
 /home/ubuntu
-ubuntu@prod-server:~$`,
-    task:"What command lists all files and folders in the current directory?",
-    hint:"Two letters. Think 'list'.",
-    choices:[
-      {t:'show',ok:false},{t:'ls',ok:true},{t:'dir',ok:false},{t:'files',ok:false}
-    ],
-    why:"ls (list) shows directory contents. Use `ls -la` to also see hidden files (dotfiles like .env) and permissions."
+ubuntu@prod-01:~$ ___`,
+    task:"Write the command to navigate into /var/log/nginx.",
+    hint:"cd = change directory. Syntax: cd <path>",
+    answers:['cd /var/log/nginx','cd /var/log/nginx/'],
+    why:"cd changes your working directory. Absolute paths (/var/log/nginx) work from anywhere. Relative paths work from your current location. `cd ..` goes up one level. `cd ~` goes home."
   },
+
   {
-    cat:'LINUX — READING FILES', file:'terminal', type:'choice', diff:1,
-    mission:"You see a file called .env. You need to read what's inside it quickly.",
-    code:`ubuntu@prod-server:~$ ls
-app.js   .env   config.yml   README.md`,
-    task:"What command prints a file's contents directly to the terminal?",
-    hint:"Named after an animal. Shows you raw file content.",
-    choices:[
-      {t:'open .env',ok:false},{t:'cat .env',ok:true},{t:'read .env',ok:false},{t:'show .env',ok:false}
-    ],
-    why:"cat (concatenate) dumps file contents to stdout. Fast for small files. For large files, use `less` so you can scroll without flooding the terminal."
+    concept:'cat vs tail -f', cat:'LINUX — LOGS', file:'terminal', type:'choice',
+    mission:"App is throwing errors. You need to watch the log file in real time as new errors come in.",
+    code:`ubuntu@prod-01:~$ cat /var/log/app/error.log
+[ERROR] DB connection timeout
+[ERROR] Retry attempt 1...
+[ERROR] Retry attempt 2...
+# ... file ends here, no new output`,
+    task:"cat shows the file and stops. What command continuously streams new log lines as they're written?",
+    hint:"It reads from the 'tail' of the file. The flag -f means 'follow'.",
+    choices:[{t:'cat -f /var/log/app/error.log',ok:false},{t:'tail -f /var/log/app/error.log',ok:true},{t:'watch /var/log/app/error.log',ok:false},{t:'read -f /var/log/app/error.log',ok:false}],
+    why:"tail -f (follow) is one of the most-used DevOps commands. It streams new lines in real time — essential for watching live logs during a deploy or incident. Ctrl+C to stop. Combine with grep: `tail -f error.log | grep CRIT`"
   },
+
   {
-    cat:'LINUX — SEARCH', file:'terminal', type:'type', diff:2,
-    mission:"The app is crashing. Logs are huge. You need to find lines containing the word 'ERROR' fast.",
-    code:`ubuntu@prod-server:~$ cat app.log
-[INFO]  Server started on port 3000
-[INFO]  DB connected
-[ERROR] Cannot read property of undefined
-[INFO]  Request received
-[ERROR] Timeout connecting to redis
-[INFO]  Health check passed`,
-    task:"What command searches for the word ERROR inside app.log? Format: command pattern file",
-    hint:"The command starts with 'gr'. It filters lines by pattern.",
-    answers:['grep error app.log','grep ERROR app.log','grep "ERROR" app.log',"grep 'ERROR' app.log"],
-    why:"grep (Global Regular Expression Print) filters lines by pattern. It's one of the most-used Linux commands. `grep -i ERROR` makes it case-insensitive. `grep -n` adds line numbers."
+    concept:'grep — search logs', cat:'LINUX — SEARCH', file:'terminal', type:'type',
+    mission:"50,000-line log file. The incident started 3 minutes ago. You only care about CRITICAL errors.",
+    code:`ubuntu@prod-01:~$ wc -l app.log
+50847 app.log
+ubuntu@prod-01:~$ `,
+    task:"Search app.log for lines containing the word CRITICAL. Write the full command.",
+    hint:"grep searches file content. Syntax: grep PATTERN filename",
+    answers:['grep critical app.log','grep CRITICAL app.log',"grep 'CRITICAL' app.log",'"grep CRITICAL app.log"'],
+    why:"grep (Global Regular Expression Print) filters lines by pattern. Add -i for case-insensitive. Add -n for line numbers. Combine with tail: `tail -f app.log | grep CRITICAL` for live filtered logs."
   },
+
+  // ── CHAPTER 2: Power & Packages ────────────────────────
   {
-    cat:'LINUX — PERMISSIONS', file:'terminal', type:'choice', diff:2,
-    mission:"You try to run a script. It fails silently. You check the file permissions.",
-    code:`ubuntu@prod-server:~$ ls -la
--rw-r--r-- 1 ubuntu ubuntu  512 Apr 20 deploy.sh`,
-    task:"Why can't you execute deploy.sh? Read the permission string on the left.",
-    hint:"Break down -rw-r--r-- : type(1) + owner(3) + group(3) + others(3). Look for the letter x.",
-    choices:[
-      {t:'The file is owned by root',ok:false},
-      {t:'There is no execute (x) permission',ok:true},
-      {t:'The file size is too small',ok:false},
-      {t:'The file is hidden',ok:false}
-    ],
-    why:"-rw-r--r-- means owner has read+write, group has read, others have read. No x (execute) anywhere. Fix it with: chmod +x deploy.sh"
+    concept:'sudo — superuser', cat:'LINUX — PERMISSIONS', file:'terminal', type:'choice',
+    mission:"You need to install nginx. The command fails with 'Permission denied'.",
+    code:`ubuntu@prod-01:~$ apt-get install nginx
+E: Could not open lock file /var/lib/dpkg/lock - open (13: Permission denied)
+E: Unable to lock the administration directory (/var/lib/dpkg/), are you root?`,
+    task:"How do you re-run the command with superuser (root) privileges?",
+    hint:"It's a prefix meaning 'superuser do'. You put it before the command.",
+    choices:[{t:'root apt-get install nginx',ok:false},{t:'sudo apt-get install nginx',ok:true},{t:'su apt-get install nginx',ok:false},{t:'admin apt-get install nginx',ok:false}],
+    why:"sudo (superuser do) runs a command as root. Most system operations — installing packages, editing /etc files, managing services — require it. Never run your whole session as root; use sudo per-command instead."
   },
+
   {
-    cat:'LINUX — PACKAGE MANAGER', file:'terminal', type:'type', diff:2,
-    mission:"Your Dockerfile build has been stuck for 15 minutes. The CI log shows apt-get just sitting there.",
-    code:`Step 3/8 : RUN apt-get install -y curl nodejs
-...
-Do you want to continue? [Y/n]
-_`,
-    task:"apt-get is waiting for keyboard input — but nobody is there. What flag do you add to auto-accept all prompts?",
-    hint:"It's a single character flag. Means 'yes to everything'.",
+    concept:'apt-get — install packages', cat:'LINUX — PACKAGES', file:'terminal', type:'type',
+    mission:"Your Dockerfile build has been frozen for 20 minutes. CI logs show apt-get waiting for input.",
+    code:`Step 4/9 : RUN apt-get install curl nodejs
+Reading package lists...
+Do you want to continue? [Y/n] _`,
+    task:"apt-get is waiting for keyboard input but nobody is there. What single flag do you add to auto-accept?",
+    hint:"It tells apt-get to say YES to all prompts. One character.",
     answers:['-y','--yes','--assume-yes'],
-    why:"-y tells apt-get to answer YES to all prompts automatically. Without it, apt hangs forever in scripts and Dockerfiles because there's no human to type Y."
-  },
-  {
-    cat:'LINUX — ENV VARIABLES', file:'terminal', type:'type', diff:2,
-    mission:"The app reads its port from an env variable, but PORT is empty — app defaults to 80 and conflicts with nginx.",
-    code:`ubuntu@prod-server:~$ echo $PORT
-
-ubuntu@prod-server:~$`,
-    task:"Set PORT to 3000 in this shell session. Write the full command.",
-    hint:"The bash command to set env variables is `export`. Syntax: export NAME=VALUE",
-    answers:['export port=3000','export PORT=3000'],
-    why:"export PORT=3000 sets an env var in the current shell AND passes it to child processes. Without export, the variable exists locally but apps spawned from this shell won't see it."
+    why:"-y (--yes) tells apt-get to assume YES to all prompts. Without it, apt-get hangs forever in Dockerfiles and CI pipelines because there's no human to press Enter. Always use: apt-get install -y <package>"
   },
 
-  // ── CHAPTER 2: Processes & Pipes ──
   {
-    cat:'LINUX — PROCESSES', file:'terminal', type:'choice', diff:2,
-    mission:"Something is already running on port 3000. You need to find what process it is.",
-    code:`ubuntu@prod-server:~$ node app.js
-Error: listen EADDRINUSE: address already in use :::3000`,
-    task:"What command shows all running processes (so you can find what's using port 3000)?",
-    hint:"Two letters. Stands for Process Status.",
-    choices:[
-      {t:'top',ok:false},{t:'ps aux',ok:true},{t:'jobs',ok:false},{t:'run',ok:false}
-    ],
-    why:"ps aux lists all running processes with their PIDs. Then use `kill <PID>` to stop one. To find what's on a specific port: `lsof -i :3000` or `ss -tlnp | grep 3000`"
-  },
-  {
-    cat:'LINUX — PIPES', file:'terminal', type:'choice', diff:3,
-    mission:"ps aux gives you 200 lines. You only want lines mentioning 'node'.",
-    code:`ubuntu@prod-server:~$ ps aux
-USER  PID  %CPU  %MEM  COMMAND
-root    1   0.0   0.1  /sbin/init
-ubuntu  847  0.0   0.5  sshd
-ubuntu  1203 12.4  2.1  node app.js
-ubuntu  1204  0.0   0.1  bash
-... (200 more lines)`,
-    task:"How do you filter ps aux output to only show lines with 'node'? Complete: ps aux ___ grep node",
-    hint:"It's a single character that 'pipes' the output of one command into another.",
-    choices:[
-      {t:'ps aux > grep node',ok:false},
-      {t:'ps aux && grep node',ok:false},
-      {t:'ps aux | grep node',ok:true},
-      {t:'ps aux + grep node',ok:false}
-    ],
-    why:"The pipe | takes the output of the left command and feeds it as input to the right command. It's one of Linux's most powerful features — chain any commands together."
+    concept:'chmod — fix permissions', cat:'LINUX — PERMISSIONS', file:'terminal', type:'type',
+    mission:"You try to SSH into a server using a .pem key file. SSH refuses with a scary security warning.",
+    code:`$ ssh -i mykey.pem ubuntu@52.12.34.56
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+@ WARNING: UNPROTECTED PRIVATE KEY FILE! @
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+Permissions 0644 for 'mykey.pem' are too open.
+It is required that your private key files are NOT accessible by others.`,
+    task:"The key permissions are too open (0644 = world-readable). What command fixes it to owner-read-only (0400)?",
+    hint:"chmod changes file permissions. You want mode 400 (read only, owner only).",
+    answers:['chmod 400 mykey.pem','chmod 600 mykey.pem'],
+    why:"SSH refuses keys with permissions too open — anyone who can read the file could steal your key. chmod 400 = owner read-only. chmod 600 = owner read+write. Private keys should always be 400 or 600."
   },
 
-  // ── CHAPTER 3: Docker ──
   {
-    cat:'DOCKERFILE — BASICS', file:'Dockerfile', type:'choice', diff:2,
-    mission:"You're writing your first Dockerfile. The very first line is broken.",
-    code:`___ node:18-alpine
-
-WORKDIR /app
-COPY . .
-RUN npm install
-CMD ["node", "app.js"]`,
-    task:"Every Dockerfile starts by declaring a base image. What keyword goes on line 1?",
-    hint:"You're building FROM something. What's the keyword?",
-    choices:[
-      {t:'USE',ok:false},{t:'IMAGE',ok:false},{t:'FROM',ok:true},{t:'BASE',ok:false}
-    ],
-    why:"FROM declares the base image — the OS and runtime your container starts with. Everything else (RUN, COPY, CMD) adds layers on top of it."
+    concept:'curl — test HTTP', cat:'LINUX — NETWORKING', file:'terminal', type:'choice',
+    mission:"You deployed the API. It's running. But is it actually responding to requests?",
+    code:`ubuntu@prod-01:~$ node app.js &
+Server running on port 3000
+ubuntu@prod-01:~$ `,
+    task:"What command makes an HTTP GET request to localhost:3000 from the terminal to verify the server responds?",
+    hint:"Think 'client URL'. It's the Swiss Army knife of HTTP from the command line.",
+    choices:[{t:'ping localhost:3000',ok:false},{t:'wget -check localhost:3000',ok:false},{t:'curl http://localhost:3000',ok:true},{t:'http-get localhost:3000',ok:false}],
+    why:"curl (Client URL) makes HTTP requests from the terminal. Essential for: testing APIs, checking if services are up, downloading files. `curl -I url` for headers only. `curl -X POST -d '{...}'` for POST requests."
   },
+
   {
-    cat:'DOCKERFILE — COPY', file:'Dockerfile', type:'type', diff:2,
-    mission:"Container builds successfully but crashes on startup: 'Cannot find module app.js'.",
+    concept:'ps + kill — stop processes', cat:'LINUX — PROCESSES', file:'terminal', type:'type',
+    mission:"You try to start the app on port 3000. It fails — something is already using that port.",
+    code:`ubuntu@prod-01:~$ node app.js
+Error: listen EADDRINUSE: address already in use :::3000
+
+ubuntu@prod-01:~$ ps aux | grep node
+ubuntu  2847  12.3  1.8  node /old/app.js`,
+    task:"You found the old process — PID is 2847. What command kills it?",
+    hint:"kill sends a signal to a process by its PID. PID is the number in the second column.",
+    answers:['kill 2847','kill -9 2847','sudo kill 2847','sudo kill -9 2847'],
+    why:"kill <PID> sends SIGTERM (graceful shutdown). kill -9 <PID> sends SIGKILL (forced, immediate). Use plain kill first — give the process a chance to clean up. Use -9 only if it refuses to die."
+  },
+
+  // ── CHAPTER 3: Shell Mastery ────────────────────────────
+  {
+    concept:'pipes + redirect', cat:'SHELL — PIPES & REDIRECT', file:'terminal', type:'choice',
+    mission:"You want to find all ERROR lines from a log and save them to a file for the post-mortem report.",
+    code:`ubuntu@prod-01:~$ grep ERROR app.log ___ errors.txt`,
+    task:"What operator redirects the output of grep into a file (creating or overwriting it)?",
+    hint:"It looks like an arrow pointing right. One character.",
+    choices:[{t:'|',ok:false},{t:'>',ok:true},{t:'>>',ok:false},{t:'&',ok:false}],
+    why:"  >  redirects stdout to a file (overwrites).  >>  appends to a file.  |  pipes output to another command.  2>  redirects error messages. Example: `grep ERROR app.log > errors.txt 2>&1` captures both stdout and stderr."
+  },
+
+  {
+    concept:'df — disk usage', cat:'SHELL — MONITORING', file:'terminal', type:'type',
+    mission:"Your CI build is failing with 'No space left on device'. You need to check which disk is full.",
+    code:`ubuntu@build-agent:~$ docker build .
+...
+error: write /tmp/layer.tar: no space left on device`,
+    task:"What command shows disk space usage across all mounted filesystems in human-readable format?",
+    hint:"df = disk free. Add a flag for human-readable sizes (KB/MB/GB instead of blocks).",
+    answers:['df -h','df -H','sudo df -h'],
+    why:"df -h shows every mounted filesystem, how much space is used/available, and which mount point (/, /var, etc). When builds fail with 'no space', check df -h first. `du -sh /*` then drills into which folder is biggest."
+  },
+
+  {
+    concept:'export — env vars', cat:'SHELL — ENV VARS', file:'terminal', type:'type',
+    mission:"Your app reads the database URL from an environment variable. It's empty — app is using a hardcoded fallback.",
+    code:`ubuntu@prod-01:~$ echo $DATABASE_URL
+                          ← empty!
+ubuntu@prod-01:~$ `,
+    task:"Set DATABASE_URL to postgres://db-host:5432/myapp in this shell session.",
+    hint:"export makes a variable available to the current shell AND child processes. Syntax: export NAME=VALUE",
+    answers:['export database_url=postgres://db-host:5432/myapp','export DATABASE_URL=postgres://db-host:5432/myapp'],
+    why:"export sets env vars visible to all processes spawned from this shell. Without export, the variable is local to the shell only. In production, use .env files or secrets managers — never hardcode credentials in source code."
+  },
+
+  {
+    concept:'systemctl — services', cat:'SHELL — SERVICES', file:'terminal', type:'choice',
+    mission:"You updated nginx's config file. The old config is still loaded. You need to reload without dropping connections.",
+    code:`ubuntu@prod-01:~$ vim /etc/nginx/nginx.conf
+# ... made changes ...
+ubuntu@prod-01:~$ nginx -t
+nginx: configuration file /etc/nginx/nginx.conf test is successful`,
+    task:"Config tested OK. Now reload nginx so it picks up the new config — without killing active connections.",
+    hint:"systemctl manages system services. 'reload' reloads config. 'restart' kills and restarts.",
+    choices:[{t:'nginx restart',ok:false},{t:'sudo service nginx start',ok:false},{t:'sudo systemctl reload nginx',ok:true},{t:'sudo reboot nginx',ok:false}],
+    why:"systemctl is the modern Linux service manager. reload = apply new config without downtime. restart = full stop+start (brief downtime). Always nginx -t first to verify config before reloading — a bad config with restart = outage."
+  },
+
+  // ── CHAPTER 4: Containers ───────────────────────────────
+  {
+    concept:'docker run — basics', cat:'DOCKER — RUNTIME', file:'terminal', type:'choice',
+    mission:"You need to run a Postgres database locally for testing. One command, no install.",
+    code:`ubuntu@dev:~$ docker run ___ postgres:15`,
+    task:"What flag do you add so the container runs in the background (detached mode) instead of blocking your terminal?",
+    hint:"Detached mode. One flag. Starts with a dash.",
+    choices:[{t:'-i',ok:false},{t:'-d',ok:true},{t:'-b',ok:false},{t:'--background',ok:false}],
+    why:"-d (detach) runs the container in the background. Without it, your terminal is blocked and Ctrl+C kills the container. Essential flags: -d (detach), -p HOST:CONTAINER (ports), -e KEY=VALUE (env vars), -v HOST:CONTAINER (volumes)."
+  },
+
+  {
+    concept:'Dockerfile — full build', cat:'DOCKER — DOCKERFILE', file:'Dockerfile', type:'choice',
+    mission:"A colleague wrote this Dockerfile for a Node app. The container builds but crashes immediately on start.",
     code:`FROM node:18-alpine
 WORKDIR /app
+COPY package*.json ./
 RUN npm install
-# ← missing line here
 CMD ["node", "app.js"]`,
-    task:"What Dockerfile instruction copies app.js from your machine into the container's working directory?",
-    hint:"The instruction is COPY. Syntax: COPY source destination. Destination '.' means current WORKDIR.",
-    answers:['copy app.js .','copy app.js ./','copy ./app.js .','copy ./app.js ./'],
-    why:"COPY app.js . copies the file from your build context (your machine) into the WORKDIR inside the image. Without it, the image has node installed but none of your code."
-  },
-  {
-    cat:'DOCKER COMPOSE — SERVICES', file:'docker-compose.yml', type:'choice', diff:3,
-    mission:"Two services need to talk to each other — app needs to reach the database.",
-    code:`services:
-  app:
-    image: node:18-alpine
-    ports:
-      - "3000:3000"
-
-  database:
-    image: postgres:15
-    environment:
-      POSTGRES_PASSWORD: secret`,
-    task:"The app container tries to connect to 'localhost:5432' but can't reach postgres. Why?",
-    hint:"In Docker Compose, each service is its own container. 'localhost' means the container itself.",
+    task:"The container crashes with 'Cannot find module app.js'. What critical instruction is missing?",
+    hint:"npm install installed dependencies. But the actual source code was never brought into the image.",
     choices:[
-      {t:'Port 5432 is not exposed in docker-compose',ok:false},
-      {t:'Each container has its own localhost — use the service name as hostname',ok:true},
-      {t:'Postgres image needs to be version 14 not 15',ok:false},
-      {t:'The app needs to run as root',ok:false}
+      {t:'RUN node app.js is needed before CMD',ok:false},
+      {t:'COPY app.js . is missing — source code was never copied in',ok:true},
+      {t:'EXPOSE 3000 is missing',ok:false},
+      {t:'FROM should be node:latest not node:18-alpine',ok:false}
     ],
-    why:"In Docker Compose, containers talk to each other using service names as hostnames. Use `database:5432` not `localhost:5432`. Docker's internal DNS resolves service names automatically."
+    why:"COPY package*.json ./ copies only the dependency manifest. The actual source code (app.js) is never copied in! Add `COPY . .` after npm install to copy all source files. EXPOSE is documentation-only and doesn't affect runtime."
   },
+
 ];
 
-// ══════════════════════════════════════════════════
+// ══════════════════════════════════════════════════════════
 //  STATE
-// ══════════════════════════════════════════════════
-let S = { idx:0, score:0, streak:0, attempts:0, hintUsed:false, timerSec:0, timerRef:null, results:[] };
-const MAX_TRY=3, BASE=300, SPEED_MAX=200, HINT_PEN=50;
+// ══════════════════════════════════════════════════════════
+let S={idx:0,score:0,streak:0,attempts:0,hintUsed:false,timerSec:0,timerRef:null,results:[]};
+const MAX_TRY=3,BASE=300,SPEED_MAX=200,HINT_PEN=50;
 
 // matrix bg
 (()=>{
   const el=document.getElementById('mbg');
-  const c='01アイウエオカキクケコ';
-  let h='';
-  for(let i=0;i<1800;i++){h+=c[Math.floor(Math.random()*c.length)];if(i%80===79)h+='\n';}
+  const c='01アイウエカキクケコ';
+  let h='';for(let i=0;i<1600;i++){h+=c[Math.floor(Math.random()*c.length)];if(i%80===79)h+='\n';}
   el.textContent=h;
 })();
 
-// ══════════════════════════════════════════════════
+// ══════════════════════════════════════════════════════════
 //  UTILS
-// ══════════════════════════════════════════════════
+// ══════════════════════════════════════════════════════════
 const $=id=>document.getElementById(id);
 const norm=s=>s.trim().toLowerCase().replace(/\s+/g,' ');
 
-function screen(id){
-  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
-  $(id).classList.add('active');
-}
+function showScreen(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));$(id).classList.add('active');}
 
-function setScore(n){
+function bumpScore(n){
   S.score=Math.max(0,n);
-  const el=$('score-val');
-  el.textContent=S.score;
-  el.classList.remove('pop'); void el.offsetWidth; el.classList.add('pop');
+  const el=$('score-val');el.textContent=S.score;
+  el.classList.remove('pop');void el.offsetWidth;el.classList.add('pop');
 }
 
 function startTimer(){
-  S.timerSec=0; clearInterval(S.timerRef);
+  S.timerSec=0;clearInterval(S.timerRef);
   S.timerRef=setInterval(()=>{
     S.timerSec++;
     const m=String(Math.floor(S.timerSec/60)).padStart(2,'0');
     const s=String(S.timerSec%60).padStart(2,'0');
-    const el=$('timer-val');
-    el.textContent=m+':'+s;
+    const el=$('timer-val');el.textContent=m+':'+s;
     el.classList.toggle('hot',S.timerSec>25);
   },1000);
 }
+function stopTimer(){clearInterval(S.timerRef);return S.timerSec;}
 
-function stopTimer(){ clearInterval(S.timerRef); return S.timerSec; }
-
-function speedBonus(sec){
-  if(sec<=8) return SPEED_MAX;
-  if(sec>=50) return 0;
-  return Math.round(SPEED_MAX*(1-(sec-8)/42));
-}
-
-// ══════════════════════════════════════════════════
-//  GAME
-// ══════════════════════════════════════════════════
-function startGame(){
-  S={idx:0,score:0,streak:0,attempts:0,hintUsed:false,timerSec:0,timerRef:null,results:[]};
-  setScore(0); updateStreak();
-  screen('game'); loadLevel(0);
-}
-function reset(){ startGame(); }
+function speedBonus(sec){if(sec<=8)return SPEED_MAX;if(sec>=50)return 0;return Math.round(SPEED_MAX*(1-(sec-8)/42));}
 
 function updateStreak(){
-  const badge=$('streak-badge');
-  if(S.streak>=2){
-    badge.style.display='inline-block';
-    $('streak-num').textContent=S.streak;
-    badge.style.animation='none'; void badge.offsetWidth; badge.style.animation='streakBounce 0.4s ease';
-  } else { badge.style.display='none'; }
+  const el=$('streak');
+  if(S.streak>=2){$('snum').textContent=S.streak;el.classList.add('on');el.style.display='inline-block';}
+  else{el.classList.remove('on');el.style.display='none';}
 }
 
+// ══════════════════════════════════════════════════════════
+//  GAME FLOW
+// ══════════════════════════════════════════════════════════
+function startGame(){
+  S={idx:0,score:0,streak:0,attempts:0,hintUsed:false,timerSec:0,timerRef:null,results:[]};
+  bumpScore(0);updateStreak();showScreen('game');loadLevel(0);
+}
+function resetGame(){startGame();}
+
 function loadLevel(i){
-  const lv=L[i];
-  S.attempts=0; S.hintUsed=false;
+  const lv=LEVELS[i];
+  S.attempts=0;S.hintUsed=false;
 
-  $('lvl-badge').textContent=`LVL ${i+1}/${L.length}`;
+  $('lvl-badge').textContent=`LVL ${i+1}/${LEVELS.length}`;
   $('lvl-cat').textContent=lv.cat;
-  $('lvl-ind').textContent=`LVL ${i+1}/${L.length}`;
+  $('lvl-hdr-ind').textContent=`LVL ${i+1}/${LEVELS.length}`;
   $('file-lbl').textContent=lv.file;
-  $('prog-bar').style.width=(i/L.length*100)+'%';
+  $('concept-lbl').textContent=lv.concept;
+  $('prog').style.width=(i/LEVELS.length*100)+'%';
 
-  $('mission-box').textContent=lv.mission;
-  $('code-out').innerHTML=fmtCode(lv,i);
+  $('mission').textContent=lv.mission;
+  $('code-out').innerHTML=fmtCode(lv);
   $('task-box').textContent=lv.task;
 
-  $('hint-box').textContent=''; $('hint-box').classList.remove('on');
-  $('explain-box').textContent=''; $('explain-box').classList.remove('on');
-  $('hint-btn').disabled=false; $('hint-btn').style.opacity='1';
-  $('fb').textContent=''; $('fb').className='fb';
+  ['hint-box','explain-box'].forEach(id=>{$(id).textContent='';$(id).classList.remove('on');});
+  $('hint-btn').disabled=false;$('hint-btn').style.opacity='1';
+  $('fb').textContent='';$('fb').className='fb';
 
-  const tr=$('tries'); tr.innerHTML='';
-  for(let j=0;j<MAX_TRY;j++){
-    const d=document.createElement('div'); d.className='try-dot'; d.id=`td${j}`; tr.appendChild(d);
-  }
-  const tl=document.createElement('span'); tl.className='tries-label'; tl.textContent='attempts'; tr.appendChild(tl);
+  const tr=$('tries');tr.innerHTML='';
+  for(let j=0;j<MAX_TRY;j++){const d=document.createElement('div');d.className='td';d.id=`td${j}`;tr.appendChild(d);}
+  const lbl=document.createElement('span');lbl.className='tries-lbl';lbl.textContent='lives';tr.appendChild(lbl);
 
   if(lv.type==='type'){
-    $('type-sec').style.display='flex'; $('choice-sec').style.display='none';
-    const inp=$('ans-inp'); inp.value=''; inp.className=''; setTimeout(()=>inp.focus(),50);
+    $('type-sec').style.display='flex';$('choice-sec').style.display='none';
+    const inp=$('ans-inp');inp.value='';inp.className='';setTimeout(()=>inp.focus(),60);
   } else {
-    $('type-sec').style.display='none'; $('choice-sec').style.display='grid';
+    $('type-sec').style.display='none';$('choice-sec').style.display='grid';
     buildChoices(lv.choices);
   }
   startTimer();
 }
 
-function fmtCode(lv,i){
+function fmtCode(lv){
   let h=lv.code.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-  // highlight known bad spots
-  if(lv.file==='Dockerfile'){
-    h=h.replace('___ ','<span class="bad">___</span> ');
-    h=h.replace('# ← missing line here','<span class="bad"># ← missing line here</span>');
-  }
-  if(lv.cat.includes('PACKAGE')){
-    h=h.replace('_','<span class="bad">_</span>');
-  }
+  // highlight the broken/missing part per level concept
+  if(lv.concept.startsWith('cd')){h=h.replace('___','<span class="bad">___</span>');}
+  if(lv.concept.startsWith('apt-get')){h=h.replace('_','<span class="bad cursor">_</span>');}
+  if(lv.concept.startsWith('chmod')){h=h.replace('Permissions 0644','Permissions <span class="bad">0644</span>');}
+  if(lv.concept.startsWith('ps + kill')){h=h.replace('2847','<span class="bad">2847 ← PID</span>');}
+  if(lv.concept.startsWith('pipes')){h=h.replace('___','<span class="bad">___</span>');}
+  if(lv.concept.startsWith('Dockerfile')){h=h.replace('CMD ["node", "app.js"]','<span class="bad">CMD ["node", "app.js"]  ← crashes here</span>');}
   return h;
 }
 
 function buildChoices(choices){
-  const g=$('choice-sec'); g.innerHTML='';
+  const g=$('choice-sec');g.innerHTML='';
   choices.forEach(c=>{
-    const b=document.createElement('button'); b.className='ch-btn'; b.textContent=c.t;
-    b.onclick=()=>pickChoice(b,c.ok,choices); g.appendChild(b);
+    const b=document.createElement('button');b.className='ch-btn';b.textContent=c.t;
+    b.onclick=()=>pickChoice(b,c.ok,choices);g.appendChild(b);
   });
 }
 
-// ══════════════════════════════════════════════════
-//  ANSWERS
-// ══════════════════════════════════════════════════
+// ══════════════════════════════════════════════════════════
+//  ANSWER HANDLING
+// ══════════════════════════════════════════════════════════
 function submit(){
-  const v=norm($('ans-inp').value); if(!v) return;
-  const lv=L[S.idx];
+  const v=norm($('ans-inp').value);if(!v)return;
+  const lv=LEVELS[S.idx];
   const ok=lv.answers.some(a=>norm(a)===v);
   handleResult(ok,$('ans-inp'));
 }
-
-$('ans-inp').addEventListener('keydown',e=>{ if(e.key==='Enter') submit(); });
+$('ans-inp').addEventListener('keydown',e=>{if(e.key==='Enter')submit();});
 
 function pickChoice(btn,ok,choices){
   $('choice-sec').querySelectorAll('.ch-btn').forEach(b=>b.disabled=true);
   btn.classList.add(ok?'ok':'err');
-  if(!ok){
-    const all=$('choice-sec').querySelectorAll('.ch-btn');
-    choices.forEach((c,j)=>{ if(c.ok) all[j].classList.add('ok'); });
-  }
+  if(!ok){const all=$('choice-sec').querySelectorAll('.ch-btn');choices.forEach((c,j)=>{if(c.ok)all[j].classList.add('ok');});}
   handleResult(ok,btn);
 }
 
@@ -634,96 +611,86 @@ function handleResult(ok,el){
     const spd=speedBonus(sec);
     const hpen=S.hintUsed?HINT_PEN:0;
     const wpen=S.attempts*40;
-    const streakBonus=S.streak>=3?50:S.streak>=2?25:0;
-    const pts=Math.max(BASE+spd-hpen-wpen+streakBonus,50);
-    S.streak++;
-    setScore(S.score+pts); updateStreak();
+    const sbonus=S.streak>=3?75:S.streak>=2?35:0;
+    const pts=Math.max(BASE+spd-hpen-wpen+sbonus,50);
+    S.streak++;bumpScore(S.score+pts);updateStreak();
 
-    if(el&&el.tagName==='INPUT'){ el.classList.add('flash-ok'); }
-    const dot=$(`td${S.attempts}`); if(dot) dot.classList.add('ok');
+    if(el&&el.tagName==='INPUT'){el.classList.add('flash-ok');}
+    const dot=$(`td${S.attempts}`);if(dot)dot.classList.add('ok');
 
-    const fb=$('fb'); fb.className='fb ok';
-    let msg=`✔ CORRECT! +${pts} pts`;
-    if(S.streak>=2) msg+=` 🔥 streak x${S.streak}`;
-    if(spd>100) msg+=`  ⚡ fast +${spd}`;
+    const fb=$('fb');fb.className='fb ok';
+    let msg=`✔ CORRECT! +${pts}`;
+    if(S.streak>=2)msg+=`  🔥 streak x${S.streak} +${sbonus}`;
+    if(spd>=150)msg+=`  ⚡ fast +${spd}`;
     fb.textContent=msg;
 
-    $('explain-box').textContent=L[S.idx].why;
+    $('explain-box').textContent=LEVELS[S.idx].why;
     $('explain-box').classList.add('on');
-
-    S.results.push({lvl:S.idx+1,cat:L[S.idx].cat,pts,sec});
-    setTimeout(advance, 2600);
+    S.results.push({lvl:S.idx+1,cat:LEVELS[S.idx].concept,pts,sec});
+    setTimeout(advance,2800);
 
   } else {
-    S.attempts++; S.streak=0; updateStreak();
-    const dot=$(`td${S.attempts-1}`); if(dot) dot.classList.add('x');
+    S.attempts++;S.streak=0;updateStreak();
+    const dot=$(`td${S.attempts-1}`);if(dot)dot.classList.add('x');
 
     if(el&&el.tagName==='INPUT'){
-      el.classList.remove('flash-err'); void el.offsetWidth;
+      el.classList.remove('flash-err');void el.offsetWidth;
       el.classList.add('flash-err');
       setTimeout(()=>el.classList.remove('flash-err'),500);
-      el.value=''; el.focus();
+      el.value='';el.focus();
     }
 
-    const fb=$('fb'); fb.className='fb err';
+    const fb=$('fb');fb.className='fb err';
     if(S.attempts>=MAX_TRY){
-      const lv=L[S.idx];
+      const lv=LEVELS[S.idx];
       const ans=lv.type==='type'?lv.answers[0]:lv.choices.find(c=>c.ok).t;
-      fb.innerHTML=`✘ Out of tries. Answer: <code style="color:var(--amber)">${ans}</code>`;
+      fb.innerHTML=`✘ Out of lives. Answer: <code style="color:var(--amber);font-size:0.85rem">${ans}</code>`;
       stopTimer();
-      $('explain-box').textContent=lv.why; $('explain-box').classList.add('on');
-      S.results.push({lvl:S.idx+1,cat:lv.cat,pts:0,sec:S.timerSec});
-      setTimeout(advance,3000);
+      $('explain-box').textContent=lv.why;$('explain-box').classList.add('on');
+      S.results.push({lvl:S.idx+1,cat:LEVELS[S.idx].concept,pts:0,sec:S.timerSec});
+      setTimeout(advance,3200);
     } else {
-      const left=MAX_TRY-S.attempts;
-      const msgs=['Nope.','Not quite. Think harder.','Wrong. One last shot.'];
-      fb.textContent=`✘ ${msgs[S.attempts-1]} ${left} left.`;
+      const msgs=['Nope. Think harder.','Wrong again. Last life.',''];
+      fb.textContent=`✘ ${msgs[S.attempts-1]} ${MAX_TRY-S.attempts} left.`;
     }
   }
 }
 
-function advance(){
-  S.idx++;
-  if(S.idx>=L.length) endGame(); else loadLevel(S.idx);
-}
+function advance(){S.idx++;if(S.idx>=LEVELS.length)endGame();else loadLevel(S.idx);}
 
 function useHint(){
-  S.hintUsed=true;
-  setScore(S.score-HINT_PEN);
-  $('hint-box').textContent=L[S.idx].hint;
+  S.hintUsed=true;bumpScore(S.score-HINT_PEN);
+  $('hint-box').textContent=LEVELS[S.idx].hint;
   $('hint-box').classList.add('on');
-  $('hint-btn').disabled=true; $('hint-btn').style.opacity='0.35';
+  $('hint-btn').disabled=true;$('hint-btn').style.opacity='0.3';
 }
 
-// ══════════════════════════════════════════════════
+// ══════════════════════════════════════════════════════════
 //  END
-// ══════════════════════════════════════════════════
+// ══════════════════════════════════════════════════════════
 function endGame(){
-  stopTimer();
-  $('prog-bar').style.width='100%';
-  $('lvl-ind').textContent='DONE';
-  const sc=S.score;
-  $('final-pts').textContent=sc;
+  stopTimer();$('prog').style.width='100%';$('lvl-hdr-ind').textContent='DONE';
+  const sc=S.score;$('final-pts').textContent=sc;
 
   let title,rank;
   if(sc>=4500){title='INCIDENT RESOLVED';rank='SENIOR SRE 🏆';}
   else if(sc>=3000){title='SHIP STABILIZED';rank='DEVOPS ENGINEER ⚡';}
   else if(sc>=1500){title='SHIP LIMPING';rank='JUNIOR DEVOPS 🔧';}
-  else{title='SHIP STILL SINKING';rank='INTERN 💀';}
+  else{title='SHIP STILL SINKING';rank='INTERN 💀 keep studying';}
 
   $('end-title').textContent=title;
   $('rank-lbl').textContent='// RANK: '+rank+' //';
 
   let html='<h3>BREAKDOWN</h3>';
   S.results.forEach(r=>{
-    html+=`<div class="brow"><span>LVL${r.lvl}: ${r.cat}</span><span class="${r.pts>0?'p':'p neg'}">${r.pts>0?'+'+r.pts:0}</span></div>`;
+    html+=`<div class="brow"><span style="font-size:0.75rem">${r.cat}</span><span class="${r.pts>0?'p':'p z'}">${r.pts>0?'+'+r.pts:0}</span></div>`;
   });
   html+=`<div class="brow" style="margin-top:8px;border-top:1px solid var(--border);padding-top:8px"><strong>TOTAL</strong><span class="p">${sc}</span></div>`;
   $('breakdown').innerHTML=html;
-  screen('end');
+  showScreen('end');
 }
 
-screen('splash');
+showScreen('splash');
 </script>
 </body>
 </html>

@@ -1,50 +1,60 @@
 # Fix the Ship 🚢
 
-A hands-on DevOps debugging game for tech graduates starting from zero.
+A hands-on DevOps game for tech grads starting from zero. Prod is down. 16 problems. Fix them.
 
-**Live:** https://athulya-cloud.github.io/fix-the-ship/
-
----
-
-## What is it?
-
-10 levels of broken terminal commands, Dockerfiles, and configs. You read the broken code, figure out what's wrong, and fix it. Points for speed. Hints cost you.
-
-No signup. No install. Just open and play.
+**Play:** https://athulya-cloud.github.io/fix-the-ship/
 
 ---
 
-## Topics Covered
+## Curriculum
 
-| Chapter | Topics |
-|---------|--------|
-| Linux Basics | pwd, ls, cat, apt-get, permissions, env vars |
-| Dockerfile | FROM, COPY, RUN, CMD |
-| Supervisord | INI config, common mistakes |
-| Docker Compose | Services, images, dynamic ports |
+Mapped to Linux Foundation LFCS objectives, roadmap.sh/devops, and Docker's official learning path.
+
+| # | Concept | Why It Matters |
+|---|---------|----------------|
+| 1 | `pwd` | Know where you are on any server |
+| 2 | `ls -la` | See everything including hidden files |
+| 3 | `cd` | Navigate the filesystem |
+| 4 | `tail -f` | Watch live logs during incidents |
+| 5 | `grep` | Search logs fast |
+| 6 | `sudo` | Run commands as superuser |
+| 7 | `apt-get -y` | Install packages in scripts/Docker |
+| 8 | `chmod` | Fix SSH key permissions |
+| 9 | `curl` | Test HTTP endpoints from CLI |
+| 10 | `kill` | Stop a zombie process by PID |
+| 11 | `>` redirect | Route output to files |
+| 12 | `df -h` | Diagnose full disk |
+| 13 | `export` | Set environment variables |
+| 14 | `systemctl` | Manage services |
+| 15 | `docker run -d` | Run containers in background |
+| 16 | `Dockerfile` | Containerize an app correctly |
 
 ---
 
 ## How to Play
 
-1. Open https://athulya-cloud.github.io/fix-the-ship/
-2. Hit **BOOT SEQUENCE**
-3. Read the broken code and the task
-4. Type your answer or pick from choices
-5. You have **3 attempts** per level
-6. **HINT** button shows a clue but costs **-50 pts**
-7. After each answer (right or wrong) you see **WHY** — read it, it's the learning
+1. Hit **TAKE THE CALL**
+2. Read the **mission** (real-world scenario) and the **broken code**
+3. Answer — type a command or pick from choices
+4. 3 lives per level. Hints cost -50 pts
+5. After each answer: **WHY** box explains the concept
+6. Speed bonus — faster answers = more points
+7. Streak multiplier — consecutive correct answers = bonus points
 
 ---
 
 ## Scoring
 
-- Base: 300 pts per level
-- Speed bonus: up to +200 pts (under 10 seconds = full bonus)
-- Hint penalty: -50 pts
-- Wrong attempt penalty: -40 pts each
+| What | Points |
+|------|--------|
+| Base per level | 300 |
+| Speed bonus (under 8s) | +200 |
+| Hint used | -50 |
+| Wrong attempt | -40 each |
+| Streak x2 | +35 |
+| Streak x3+ | +75 |
 
-**Ranks:** Intern → Junior DevOps → DevOps Engineer → Senior SRE
+**Ranks:** Intern → Junior DevOps → DevOps Engineer → Senior SRE 🏆
 
 ---
 
@@ -53,7 +63,7 @@ No signup. No install. Just open and play.
 ```bash
 git clone https://github.com/Athulya-cloud/fix-the-ship.git
 cd fix-the-ship
-open index.html
+open index.html   # or just double-click it
 ```
 
-Single HTML file. No dependencies.
+Single HTML file. Zero dependencies. Works offline.
