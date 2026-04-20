@@ -3,752 +3,727 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Fix the Ship</title>
+<title>Fix the Ship 🚢</title>
 <style>
   :root {
-    --green: #00ff41;
-    --green-dim: #00cc33;
-    --green-dark: #004d14;
-    --amber: #ffb700;
-    --red: #ff3333;
-    --bg: #0a0a0a;
-    --surface: #111111;
-    --surface2: #1a1a1a;
-    --border: #1f3f1f;
-    --text-muted: #4a7a4a;
+    --green: #00ff41; --green-dim: #00cc33; --green-dark: #004d14;
+    --amber: #ffb700; --red: #ff3333; --blue: #00cfff;
+    --bg: #0a0a0a; --surface: #111; --surface2: #1a1a1a;
+    --border: #1f3f1f; --muted: #4a7a4a;
   }
-
   * { box-sizing: border-box; margin: 0; padding: 0; }
-
   body {
-    background: var(--bg);
-    color: var(--green);
-    font-family: 'Courier New', Courier, monospace;
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: flex-start;
-    padding: 16px;
-    overflow-x: hidden;
+    background: var(--bg); color: var(--green);
+    font-family: 'Courier New', monospace;
+    min-height: 100vh; display: flex; flex-direction: column;
+    align-items: center; padding: 16px; overflow-x: hidden;
   }
-
   body::after {
-    content: '';
-    position: fixed;
-    inset: 0;
-    background: repeating-linear-gradient(to bottom, transparent 0px, transparent 3px, rgba(0,0,0,0.08) 3px, rgba(0,0,0,0.08) 4px);
-    pointer-events: none;
-    z-index: 9999;
+    content: ''; position: fixed; inset: 0; pointer-events: none; z-index: 9999;
+    background: repeating-linear-gradient(to bottom, transparent 0, transparent 3px, rgba(0,0,0,0.07) 3px, rgba(0,0,0,0.07) 4px);
   }
 
-  @keyframes flicker { 0%,100%{opacity:1}92%{opacity:1}93%{opacity:.8}94%{opacity:1}96%{opacity:.9}97%{opacity:1} }
+  @keyframes flicker { 0%,100%{opacity:1}93%{opacity:.85}94%{opacity:1}97%{opacity:.92}98%{opacity:1} }
   @keyframes blink { 0%,100%{opacity:1}50%{opacity:0} }
-  @keyframes slideIn { from{transform:translateY(-20px);opacity:0}to{transform:translateY(0);opacity:1} }
-  @keyframes slideUp { from{transform:translateY(20px);opacity:0}to{transform:translateY(0);opacity:1} }
-  @keyframes shake { 0%,100%{transform:translateX(0)}20%{transform:translateX(-8px)}40%{transform:translateX(8px)}60%{transform:translateX(-6px)}80%{transform:translateX(6px)} }
-  @keyframes countUp { from{transform:scale(1.4);color:var(--amber)}to{transform:scale(1);color:var(--green)} }
+  @keyframes slideIn { from{transform:translateY(-16px);opacity:0}to{transform:translateY(0);opacity:1} }
+  @keyframes slideUp { from{transform:translateY(14px);opacity:0}to{transform:translateY(0);opacity:1} }
+  @keyframes shake { 0%,100%{transform:translateX(0)}20%{transform:translateX(-8px)}40%{transform:translateX(8px)}60%{transform:translateX(-5px)}80%{transform:translateX(5px)} }
+  @keyframes pop { 0%{transform:scale(1.5);color:var(--amber)}100%{transform:scale(1);color:var(--green)} }
   @keyframes fadeIn { from{opacity:0}to{opacity:1} }
+  @keyframes glow { 0%,100%{box-shadow:0 0 6px var(--green)}50%{box-shadow:0 0 18px var(--green),0 0 32px var(--green-dark)} }
+  @keyframes streakBounce { 0%{transform:scale(1)}30%{transform:scale(1.4)}100%{transform:scale(1)} }
 
-  body { animation: flicker 8s infinite; }
+  body { animation: flicker 10s infinite; }
 
-  #header {
-    width: 100%; max-width: 780px;
-    display: flex; justify-content: space-between; align-items: center;
-    padding: 10px 16px; border: 1px solid var(--border);
-    background: var(--surface); margin-bottom: 16px; border-radius: 4px;
+  /* ── HEADER ── */
+  #hdr {
+    width:100%; max-width:800px; display:flex; justify-content:space-between;
+    align-items:center; padding:10px 16px; border:1px solid var(--border);
+    background:var(--surface); margin-bottom:14px; border-radius:4px; gap:10px;
   }
+  #logo { font-size:1.05rem; font-weight:bold; letter-spacing:2px; text-transform:uppercase; white-space:nowrap; }
+  #logo .ship { color:var(--amber); }
+  #hdr-right { display:flex; gap:18px; align-items:center; font-size:0.82rem; flex-wrap:wrap; justify-content:flex-end; }
+  #score-val { font-size:1.1rem; font-weight:bold; }
+  #score-val.pop { animation: pop 0.4s ease; }
+  #streak-badge { background:var(--amber); color:#000; font-weight:bold; padding:2px 8px; border-radius:2px; font-size:0.78rem; display:none; animation: streakBounce 0.4s ease; }
+  #timer-val { color:var(--muted); }
+  #timer-val.hot { color:var(--amber); animation: blink 0.7s infinite; }
+  #lvl-ind { color:var(--muted); font-size:0.78rem; white-space:nowrap; }
 
-  #logo { font-size: 1.1rem; font-weight: bold; letter-spacing: 2px; text-transform: uppercase; }
-  #logo span { color: var(--amber); }
+  /* ── PROGRESS ── */
+  #prog-wrap { width:100%; max-width:800px; height:4px; background:var(--surface); border:1px solid var(--border); border-radius:2px; margin-bottom:16px; }
+  #prog-bar { height:100%; background:var(--green); border-radius:2px; transition:width 0.5s ease; box-shadow:0 0 8px var(--green); }
 
-  #score-block { display: flex; gap: 20px; align-items: center; font-size: 0.85rem; }
-  #score-display { font-size: 1.1rem; font-weight: bold; }
-  #score-display.pop { animation: countUp 0.4s ease; }
-  #timer-display { color: var(--text-muted); }
-  #timer-display.urgent { color: var(--amber); animation: blink 0.6s infinite; }
-  #level-indicator { color: var(--text-muted); font-size: 0.8rem; }
+  /* ── SCREENS ── */
+  .screen { width:100%; max-width:800px; display:none; }
+  .screen.active { display:block; animation:slideIn 0.35s ease; }
 
-  .screen { width: 100%; max-width: 780px; display: none; }
-  .screen.active { display: block; animation: slideIn 0.35s ease; }
+  /* ── SPLASH ── */
+  #splash { text-align:center; padding:36px 20px; }
+  #splash h1 { font-size:clamp(2rem,9vw,3.8rem); letter-spacing:4px; text-transform:uppercase; text-shadow:0 0 24px var(--green),0 0 48px var(--green-dark); margin-bottom:6px; }
+  #splash h1 .ship { color:var(--amber); }
+  .tagline { color:var(--muted); font-size:0.88rem; letter-spacing:2px; margin-bottom:12px; }
+  .alert-box {
+    background:rgba(255,51,51,0.08); border:1px solid var(--red);
+    border-radius:4px; padding:18px 20px; margin:20px 0; text-align:left; animation: glow 2s infinite;
+  }
+  .alert-box .alert-title { color:var(--red); font-size:0.75rem; letter-spacing:3px; margin-bottom:10px; }
+  .alert-box pre { font-size:0.8rem; line-height:1.8; color:#ccc; white-space:pre-wrap; }
+  .alert-box pre .err { color:var(--red); }
+  .alert-box pre .warn { color:var(--amber); }
+  .alert-box pre .ok { color:var(--green); }
+  .chapters { display:grid; grid-template-columns:repeat(2,1fr); gap:10px; margin:22px 0 28px; text-align:left; }
+  .ch-card { background:var(--surface); border:1px solid var(--border); border-radius:4px; padding:12px 14px; }
+  .ch-card .ch-num { font-size:0.68rem; color:var(--muted); letter-spacing:2px; margin-bottom:4px; }
+  .ch-card .ch-name { font-size:0.88rem; color:var(--green); margin-bottom:3px; }
+  .ch-card .ch-topics { font-size:0.72rem; color:var(--muted); }
 
-  /* SPLASH */
-  #splash { text-align: center; padding: 40px 20px; }
-  #splash h1 { font-size: clamp(2rem,8vw,3.5rem); letter-spacing: 4px; text-transform: uppercase; margin-bottom: 8px; text-shadow: 0 0 20px var(--green),0 0 40px var(--green-dark); }
-  #splash h1 span { color: var(--amber); }
-  #splash .tagline { color: var(--text-muted); font-size: 0.9rem; margin-bottom: 40px; letter-spacing: 2px; }
+  /* ── MISSION BRIEFING ── */
+  .mission-box {
+    background:rgba(0,207,255,0.05); border:1px solid rgba(0,207,255,0.2);
+    border-left:3px solid var(--blue); border-radius:4px;
+    padding:12px 16px; margin-bottom:12px; font-size:0.82rem; color:var(--blue);
+    line-height:1.5; animation:slideUp 0.3s ease;
+  }
+  .mission-box::before { content:'📡 MISSION: '; font-size:0.7rem; opacity:0.7; }
 
-  .terminal-box { background: var(--surface); border: 1px solid var(--border); border-radius: 4px; padding: 20px; text-align: left; margin-bottom: 24px; }
-  .terminal-box .dot-row { display: flex; gap: 6px; margin-bottom: 14px; }
-  .dot { width: 12px; height: 12px; border-radius: 50%; }
-  .dot-r { background: #ff5f57; } .dot-y { background: #ffbd2e; } .dot-g { background: #28ca41; }
-  .terminal-box pre { font-size: 0.82rem; color: var(--green-dim); line-height: 1.7; white-space: pre-wrap; word-break: break-word; }
-  .terminal-box pre .cmd { color: var(--green); }
-  .terminal-box pre .err { color: var(--red); }
-  .terminal-box pre .muted { color: var(--text-muted); }
-  .terminal-box pre .amber { color: var(--amber); }
+  /* ── CODE PANEL ── */
+  .code-panel { background:var(--surface); border:1px solid var(--border); border-radius:4px; margin-bottom:14px; overflow:hidden; }
+  .panel-bar { background:var(--surface2); border-bottom:1px solid var(--border); padding:6px 14px; font-size:0.7rem; color:var(--muted); display:flex; justify-content:space-between; align-items:center; letter-spacing:1px; }
+  .dots { display:flex; gap:5px; }
+  .dot { width:9px; height:9px; border-radius:50%; }
+  .dr{background:#ff5f57;}.dy{background:#ffbd2e;}.dg{background:#28ca41;}
+  .code-body { padding:14px 18px; overflow-x:auto; }
+  .code-body pre { font-size:0.82rem; line-height:1.8; color:var(--green-dim); white-space:pre; tab-size:2; }
+  .bad { background:rgba(255,51,51,0.15); border-bottom:2px solid var(--red); color:#ff6666; border-radius:2px; padding:0 2px; }
 
-  .preview-levels { display: grid; grid-template-columns: repeat(2,1fr); gap: 12px; margin-bottom: 32px; }
-  .preview-card { background: var(--surface); border: 1px solid var(--border); border-radius: 4px; padding: 14px; font-size: 0.78rem; color: var(--text-muted); }
-  .preview-card strong { display: block; color: var(--green); margin-bottom: 4px; font-size: 0.85rem; }
+  /* ── TASK BOX ── */
+  .task-box { background:var(--surface); border:1px solid var(--border); border-left:3px solid var(--amber); border-radius:4px; padding:13px 16px; margin-bottom:12px; font-size:0.88rem; line-height:1.6; color:var(--amber); animation:slideUp 0.3s ease; }
+  .task-box::before { content:'▶ '; }
 
-  /* BUTTONS */
-  .btn { background: transparent; border: 1px solid var(--green); color: var(--green); font-family: inherit; font-size: 1rem; padding: 12px 32px; cursor: pointer; text-transform: uppercase; letter-spacing: 3px; border-radius: 2px; transition: background 0.15s,box-shadow 0.15s,transform 0.1s; position: relative; overflow: hidden; }
+  /* ── HINT / EXPLAIN ── */
+  .hint-box { background:rgba(0,80,0,0.3); border:1px solid var(--green-dark); border-radius:4px; padding:11px 16px; margin-bottom:10px; font-size:0.82rem; color:var(--green-dim); display:none; animation:slideUp 0.3s ease; line-height:1.5; }
+  .hint-box.on { display:block; }
+  .hint-box::before { content:'💡 HINT: '; color:var(--green); font-size:0.72rem; }
+  .explain-box { background:rgba(0,50,10,0.5); border:1px solid var(--green); border-radius:4px; padding:13px 16px; margin-bottom:10px; font-size:0.82rem; color:var(--green-dim); display:none; animation:fadeIn 0.5s ease; line-height:1.6; }
+  .explain-box.on { display:block; }
+  .explain-box::before { content:'🧠 WHY: '; color:var(--green); font-size:0.72rem; font-weight:bold; }
+
+  /* ── ATTEMPTS ── */
+  .tries { display:flex; gap:6px; margin-bottom:12px; align-items:center; }
+  .try-dot { width:10px; height:10px; border-radius:50%; background:var(--border); transition:background 0.2s; }
+  .try-dot.x { background:var(--red); }
+  .try-dot.ok { background:var(--green); box-shadow:0 0 6px var(--green); }
+  .tries-label { font-size:0.72rem; color:var(--muted); margin-left:6px; }
+
+  /* ── FEEDBACK ── */
+  .fb { min-height:28px; display:flex; align-items:center; font-size:0.85rem; margin-bottom:8px; }
+  .fb.ok { color:var(--green); }
+  .fb.err { color:var(--red); }
+
+  /* ── INPUT ── */
+  .ans-row { display:flex; gap:10px; margin-bottom:12px; flex-wrap:wrap; }
+  #ans-inp {
+    flex:1; min-width:200px; background:var(--surface); border:1px solid var(--border);
+    border-radius:2px; color:var(--green); font-family:inherit; font-size:0.9rem;
+    padding:11px 14px; outline:none; caret-color:var(--green);
+    transition:border-color 0.15s, box-shadow 0.15s;
+  }
+  #ans-inp:focus { border-color:var(--green); box-shadow:0 0 8px var(--green-dark); }
+  #ans-inp::placeholder { color:var(--muted); }
+  #ans-inp.flash-ok { border-color:var(--green)!important; box-shadow:0 0 20px var(--green)!important; background:rgba(0,255,65,0.07)!important; }
+  #ans-inp.flash-err { border-color:var(--red)!important; animation:shake 0.4s ease; }
+
+  /* ── CHOICES ── */
+  .choices { display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:10px; margin-bottom:12px; }
+  .ch-btn {
+    background:var(--surface); border:1px solid var(--border); color:var(--green-dim);
+    font-family:inherit; font-size:0.83rem; padding:13px 14px; cursor:pointer;
+    text-align:left; border-radius:3px; transition:border-color 0.15s,color 0.15s,background 0.15s;
+    line-height:1.5; word-break:break-word;
+  }
+  .ch-btn:hover { border-color:var(--green); color:var(--green); background:rgba(0,255,65,0.04); }
+  .ch-btn.ok { border-color:var(--green)!important; color:var(--green)!important; background:rgba(0,255,65,0.1)!important; box-shadow:0 0 10px var(--green-dark); }
+  .ch-btn.err { border-color:var(--red)!important; color:var(--red)!important; background:rgba(255,51,51,0.08)!important; animation:shake 0.4s ease; }
+  .ch-btn:disabled { cursor:default; }
+
+  /* ── BUTTONS ── */
+  .btn {
+    background:transparent; border:1px solid var(--green); color:var(--green);
+    font-family:inherit; font-size:0.95rem; padding:11px 28px; cursor:pointer;
+    text-transform:uppercase; letter-spacing:3px; border-radius:2px;
+    transition:background 0.15s,box-shadow 0.15s,transform 0.1s; position:relative; overflow:hidden;
+  }
   .btn::before { content:''; position:absolute; inset:0; background:var(--green); opacity:0; transition:opacity 0.15s; }
-  .btn:hover::before { opacity: 0.1; }
-  .btn:hover { box-shadow: 0 0 12px var(--green-dark); transform: translateY(-1px); }
-  .btn:active { transform: translateY(0); }
+  .btn:hover::before { opacity:0.1; }
+  .btn:hover { box-shadow:0 0 14px var(--green-dark); transform:translateY(-1px); }
+  .btn:active { transform:translateY(0); }
+  .btn-sm { font-size:0.72rem; padding:7px 14px; letter-spacing:2px; }
   .btn-amber { border-color:var(--amber); color:var(--amber); }
   .btn-amber::before { background:var(--amber); }
-  .btn-amber:hover { box-shadow: 0 0 12px rgba(255,183,0,0.3); }
-  .btn-sm { font-size: 0.75rem; padding: 7px 16px; letter-spacing: 2px; }
+  .btn-amber:hover { box-shadow:0 0 12px rgba(255,183,0,0.3); }
 
-  /* GAME */
-  #game { display: none; }
-  #game.active { display: block; }
+  .lvl-hdr { display:flex; justify-content:space-between; align-items:center; margin-bottom:13px; flex-wrap:wrap; gap:8px; }
+  .lvl-badge { background:var(--surface); border:1px solid var(--border); padding:3px 11px; font-size:0.72rem; letter-spacing:2px; color:var(--amber); border-radius:2px; }
+  .lvl-cat { font-size:0.9rem; letter-spacing:1px; color:var(--green-dim); }
+  .hint-wrap { display:flex; align-items:center; gap:7px; }
+  .hint-cost { font-size:0.68rem; color:var(--red); }
 
-  .level-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
-  .level-badge { background: var(--surface); border: 1px solid var(--border); padding: 4px 12px; font-size: 0.75rem; letter-spacing: 2px; color: var(--amber); border-radius: 2px; }
-  .level-title { font-size: 0.95rem; letter-spacing: 1px; color: var(--green-dim); }
-  .hint-btn-wrap { display: flex; align-items: center; gap: 8px; }
-  .hint-cost { font-size: 0.7rem; color: var(--red); }
+  /* ── END ── */
+  #end { text-align:center; padding:30px 20px; }
+  #end h2 { font-size:clamp(1.5rem,6vw,2.6rem); letter-spacing:3px; text-shadow:0 0 20px var(--green); margin-bottom:8px; }
+  .final-score { font-size:clamp(2.5rem,10vw,4.2rem); color:var(--amber); font-weight:bold; margin:14px 0; text-shadow:0 0 30px var(--amber); }
+  .rank { font-size:0.95rem; color:var(--green-dim); letter-spacing:2px; margin-bottom:24px; }
+  .breakdown { background:var(--surface); border:1px solid var(--border); border-radius:4px; padding:16px; margin-bottom:24px; text-align:left; max-width:440px; margin-left:auto; margin-right:auto; }
+  .breakdown h3 { font-size:0.72rem; letter-spacing:2px; color:var(--muted); margin-bottom:12px; text-align:center; }
+  .brow { display:flex; justify-content:space-between; font-size:0.8rem; padding:5px 0; border-bottom:1px solid var(--border); color:var(--green-dim); }
+  .brow:last-child { border-bottom:none; }
+  .brow .p { color:var(--green); font-weight:bold; }
+  .brow .p.neg { color:var(--red); }
 
-  .broken-code-panel { background: var(--surface); border: 1px solid var(--border); border-radius: 4px; margin-bottom: 16px; overflow: hidden; }
-  .panel-bar { background: var(--surface2); border-bottom: 1px solid var(--border); padding: 7px 14px; font-size: 0.72rem; color: var(--text-muted); display: flex; justify-content: space-between; align-items: center; letter-spacing: 1px; }
-  .panel-bar .dot-row { margin: 0; gap: 5px; }
-  .panel-bar .dot { width: 9px; height: 9px; }
-  .code-body { padding: 16px 18px; overflow-x: auto; }
-  .code-body pre { font-size: 0.82rem; line-height: 1.75; color: var(--green-dim); white-space: pre; tab-size: 4; }
-  .code-body pre .highlight-bad { background: rgba(255,51,51,0.18); border-bottom: 2px solid var(--red); color: #ff6666; border-radius: 2px; padding: 0 2px; }
+  .cursor { display:inline-block; animation:blink 1s infinite; }
+  .matrix-bg { position:fixed; top:0;left:0;right:0;bottom:0; z-index:-1; overflow:hidden; opacity:0.025; pointer-events:none; font-size:10px; line-height:14px; color:var(--green); word-break:break-all; }
 
-  .task-box { background: var(--surface); border: 1px solid var(--border); border-left: 3px solid var(--amber); border-radius: 4px; padding: 14px 16px; margin-bottom: 12px; font-size: 0.88rem; line-height: 1.6; color: var(--amber); animation: slideUp 0.3s ease; }
-  .task-box::before { content: '> TASK: '; opacity: 0.6; font-size: 0.75rem; }
-
-  .hint-box { background: rgba(0,80,0,0.3); border: 1px solid var(--green-dark); border-radius: 4px; padding: 12px 16px; margin-bottom: 12px; font-size: 0.82rem; color: var(--green-dim); display: none; animation: slideUp 0.3s ease; }
-  .hint-box.visible { display: block; }
-  .hint-box::before { content: '>> HINT: '; color: var(--green); font-size: 0.75rem; }
-
-  .explain-box { background: rgba(0,50,0,0.5); border: 1px solid var(--green); border-radius: 4px; padding: 14px 16px; margin-bottom: 12px; font-size: 0.82rem; color: var(--green-dim); display: none; animation: fadeIn 0.4s ease; line-height: 1.6; }
-  .explain-box.visible { display: block; }
-  .explain-box::before { content: '>> WHY: '; color: var(--green); font-size: 0.75rem; font-weight: bold; }
-
-  .answer-section { display: flex; gap: 10px; margin-bottom: 12px; flex-wrap: wrap; }
-  #answer-input { flex: 1; min-width: 200px; background: var(--surface); border: 1px solid var(--border); border-radius: 2px; color: var(--green); font-family: inherit; font-size: 0.9rem; padding: 11px 14px; outline: none; caret-color: var(--green); transition: border-color 0.15s,box-shadow 0.15s; }
-  #answer-input:focus { border-color: var(--green); box-shadow: 0 0 8px var(--green-dark); }
-  #answer-input::placeholder { color: var(--text-muted); }
-  #answer-input.correct-flash { border-color: var(--green)!important; box-shadow: 0 0 20px var(--green)!important; background: rgba(0,255,65,0.08)!important; }
-  #answer-input.wrong-flash { border-color: var(--red)!important; box-shadow: 0 0 16px rgba(255,51,51,0.4)!important; animation: shake 0.4s ease; }
-
-  .feedback-bar { height: 32px; display: flex; align-items: center; gap: 10px; font-size: 0.85rem; margin-bottom: 8px; transition: color 0.2s; min-height: 32px; }
-  .feedback-bar.correct { color: var(--green); }
-  .feedback-bar.wrong { color: var(--red); }
-
-  .attempts-row { display: flex; gap: 6px; margin-bottom: 14px; }
-  .attempt-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--border); transition: background 0.2s; }
-  .attempt-dot.used { background: var(--red); }
-  .attempt-dot.correct { background: var(--green); }
-
-  .choices-grid { display: grid; grid-template-columns: repeat(auto-fit,minmax(200px,1fr)); gap: 10px; margin-bottom: 12px; }
-  .choice-btn { background: var(--surface); border: 1px solid var(--border); color: var(--green-dim); font-family: inherit; font-size: 0.82rem; padding: 12px 14px; cursor: pointer; text-align: left; border-radius: 3px; transition: border-color 0.15s,color 0.15s,background 0.15s; line-height: 1.5; word-break: break-word; }
-  .choice-btn:hover { border-color: var(--green); color: var(--green); background: rgba(0,255,65,0.04); }
-  .choice-btn.correct-choice { border-color: var(--green)!important; color: var(--green)!important; background: rgba(0,255,65,0.1)!important; box-shadow: 0 0 12px var(--green-dark); }
-  .choice-btn.wrong-choice { border-color: var(--red)!important; color: var(--red)!important; background: rgba(255,51,51,0.08)!important; animation: shake 0.4s ease; }
-  .choice-btn:disabled { cursor: default; }
-
-  #progress-bar-wrap { width: 100%; max-width: 780px; margin-bottom: 16px; background: var(--surface); border: 1px solid var(--border); border-radius: 2px; height: 4px; }
-  #progress-bar { height: 100%; background: var(--green); border-radius: 2px; transition: width 0.4s ease; box-shadow: 0 0 8px var(--green); }
-
-  /* END */
-  #end { text-align: center; padding: 30px 20px; }
-  #end h2 { font-size: clamp(1.6rem,6vw,2.8rem); letter-spacing: 3px; margin-bottom: 8px; text-shadow: 0 0 20px var(--green); }
-  #end .final-score { font-size: clamp(2.5rem,10vw,4rem); color: var(--amber); font-weight: bold; margin: 16px 0; text-shadow: 0 0 30px var(--amber); }
-  #end .rank-label { font-size: 1rem; color: var(--green-dim); letter-spacing: 2px; margin-bottom: 28px; }
-  .score-breakdown { background: var(--surface); border: 1px solid var(--border); border-radius: 4px; padding: 16px; margin-bottom: 28px; text-align: left; max-width: 420px; margin-left: auto; margin-right: auto; }
-  .score-breakdown h3 { font-size: 0.75rem; letter-spacing: 2px; color: var(--text-muted); margin-bottom: 12px; text-align: center; }
-  .breakdown-row { display: flex; justify-content: space-between; font-size: 0.82rem; padding: 5px 0; border-bottom: 1px solid var(--border); color: var(--green-dim); }
-  .breakdown-row:last-child { border-bottom: none; }
-  .breakdown-row .pts { color: var(--green); font-weight: bold; }
-  .breakdown-row .pts.neg { color: var(--red); }
-
-  .cursor { display: inline-block; animation: blink 1s infinite; color: var(--green); }
-
-  .matrix-bg { position: fixed; top:0;left:0;right:0;bottom:0; z-index:-1; overflow:hidden; opacity:0.03; pointer-events:none; font-size:10px; line-height:14px; color:var(--green); word-break:break-all; }
-
-  @media (max-width:540px) {
-    #header { flex-wrap: wrap; gap: 8px; }
-    #score-block { font-size: 0.78rem; gap: 12px; }
-    .preview-levels { grid-template-columns: 1fr; }
-    .answer-section { flex-direction: column; }
-    #answer-input { width: 100%; }
-    .choices-grid { grid-template-columns: 1fr; }
+  @media(max-width:540px) {
+    #hdr { flex-wrap:wrap; }
+    .chapters { grid-template-columns:1fr; }
+    .ans-row { flex-direction:column; }
+    .choices { grid-template-columns:1fr; }
+    .lvl-hdr { flex-direction:column; align-items:flex-start; }
   }
 </style>
 </head>
 <body>
+<div class="matrix-bg" id="mbg"></div>
 
-<div class="matrix-bg" id="matrix-bg"></div>
-
-<div id="header">
-  <div id="logo">Fix the <span>Ship</span> <span class="cursor">_</span></div>
-  <div id="score-block">
-    <div id="level-indicator">LEVEL 0/10</div>
-    <div id="timer-display">00:00</div>
-    <div>SCORE: <span id="score-display">0</span></div>
+<div id="hdr">
+  <div id="logo">Fix the <span class="ship">Ship</span> <span class="cursor">_</span></div>
+  <div id="hdr-right">
+    <div id="lvl-ind">LVL 0/12</div>
+    <div id="timer-val">00:00</div>
+    <div id="streak-badge">🔥 x<span id="streak-num">2</span></div>
+    <div>SCORE: <span id="score-val">0</span></div>
   </div>
 </div>
+<div id="prog-wrap"><div id="prog-bar" style="width:0%"></div></div>
 
-<div id="progress-bar-wrap"><div id="progress-bar" style="width:0%"></div></div>
-
-<!-- SPLASH -->
+<!-- ═══════════ SPLASH ═══════════ -->
 <div id="splash" class="screen active">
-  <h1>Fix the <span>Ship</span></h1>
-  <p class="tagline">// linux → docker debugging challenge //</p>
+  <h1>Fix the <span class="ship">Ship</span></h1>
+  <p class="tagline">// prod is down. fix it. //</p>
 
-  <div class="terminal-box">
-    <div class="dot-row"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div></div>
-    <pre><span class="muted">$</span> <span class="cmd">apt-get install supervisor</span>
-<span class="amber">[ waiting for input... ]</span>
-<span class="muted">$</span> <span class="cmd">docker build -t my-app .</span>
-<span class="err">ERROR: server.js: no such file or directory</span>
-<span class="muted">$</span> <span class="cmd">supervisord -c supervisord.conf</span>
-<span class="err">ERROR: malformed config file</span>
-<span class="muted">$</span> <span class="muted">|</span></pre>
+  <div class="alert-box">
+    <div class="alert-title">⚠ INCIDENT REPORT — LIVE</div>
+    <pre><span class="err">02:14 CRIT  deployment failed — container won't start</span>
+<span class="err">02:15 CRIT  apt-get hanging on CI — build stuck 12 mins</span>
+<span class="warn">02:16 WARN  config file rejected by supervisor</span>
+<span class="warn">02:17 WARN  server.js not found inside image</span>
+<span class="ok">02:18 INFO  you just joined the call</span>
+<span class="ok">02:18 INFO  everyone is waiting...</span></pre>
   </div>
 
-  <div class="preview-levels">
-    <div class="preview-card"><strong>CHAPTER 1 — Linux Basics</strong>Navigate, read files, install packages</div>
-    <div class="preview-card"><strong>CHAPTER 2 — Permissions & Env</strong>chmod, env vars, processes</div>
-    <div class="preview-card"><strong>CHAPTER 3 — Dockerfile</strong>Build images, fix broken configs</div>
-    <div class="preview-card"><strong>CHAPTER 4 — Compose & Deploy</strong>Services, ports, production bugs</div>
+  <div class="chapters">
+    <div class="ch-card">
+      <div class="ch-num">CHAPTER 1</div>
+      <div class="ch-name">Linux Survival</div>
+      <div class="ch-topics">pwd · ls · cat · grep · chmod · env</div>
+    </div>
+    <div class="ch-card">
+      <div class="ch-num">CHAPTER 2</div>
+      <div class="ch-name">Package & Process</div>
+      <div class="ch-topics">apt-get · ps · kill · pipes · redirect</div>
+    </div>
+    <div class="ch-card">
+      <div class="ch-num">CHAPTER 3</div>
+      <div class="ch-name">Docker Fundamentals</div>
+      <div class="ch-topics">Dockerfile · FROM · COPY · RUN · CMD</div>
+    </div>
+    <div class="ch-card">
+      <div class="ch-num">CHAPTER 4</div>
+      <div class="ch-name">Deploy & Compose</div>
+      <div class="ch-topics">docker-compose · services · ports · env vars</div>
+    </div>
   </div>
 
-  <button class="btn" onclick="startGame()">BOOT SEQUENCE &gt;&gt;</button>
+  <button class="btn" onclick="startGame()">JOIN THE CALL &gt;&gt;</button>
 </div>
 
-<!-- GAME -->
+<!-- ═══════════ GAME ═══════════ -->
 <div id="game" class="screen">
-  <div class="level-header">
-    <div><div class="level-badge" id="level-badge">LEVEL 1/10</div></div>
-    <div class="level-title" id="level-title">LINUX BASICS</div>
-    <div class="hint-btn-wrap">
+  <div class="lvl-hdr">
+    <div class="lvl-badge" id="lvl-badge">LVL 1/12</div>
+    <div class="lvl-cat" id="lvl-cat">LINUX</div>
+    <div class="hint-wrap">
       <span class="hint-cost">-50 pts</span>
-      <button class="btn btn-sm btn-amber" id="hint-btn" onclick="showHint()">HINT</button>
+      <button class="btn btn-sm btn-amber" id="hint-btn" onclick="useHint()">HINT</button>
     </div>
   </div>
 
-  <div class="broken-code-panel">
+  <div class="mission-box" id="mission-box"></div>
+
+  <div class="code-panel">
     <div class="panel-bar">
-      <div class="dot-row"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div></div>
-      <span id="file-label">terminal</span>
+      <div class="dots"><div class="dot dr"></div><div class="dot dy"></div><div class="dot dg"></div></div>
+      <span id="file-lbl">terminal</span>
     </div>
-    <div class="code-body"><pre id="code-display"></pre></div>
+    <div class="code-body"><pre id="code-out"></pre></div>
   </div>
 
-  <div class="task-box" id="task-text"></div>
+  <div class="task-box" id="task-box"></div>
   <div class="hint-box" id="hint-box"></div>
   <div class="explain-box" id="explain-box"></div>
 
-  <div class="attempts-row" id="attempts-row"></div>
-  <div class="feedback-bar" id="feedback-bar"></div>
+  <div class="tries" id="tries"></div>
+  <div class="fb" id="fb"></div>
 
-  <div class="answer-section" id="type-answer-section">
-    <input type="text" id="answer-input" placeholder="type your answer here..." autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
-    <button class="btn" onclick="submitAnswer()">SUBMIT</button>
+  <div class="ans-row" id="type-sec">
+    <input id="ans-inp" type="text" placeholder="type your answer..." autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+    <button class="btn" onclick="submit()">SUBMIT</button>
   </div>
-
-  <div class="choices-grid" id="choices-section" style="display:none"></div>
+  <div class="choices" id="choice-sec" style="display:none"></div>
 </div>
 
-<!-- END -->
+<!-- ═══════════ END ═══════════ -->
 <div id="end" class="screen">
   <h2 id="end-title">SHIP FIXED</h2>
-  <div class="final-score" id="final-score">0</div>
-  <div class="rank-label" id="rank-label">JUNIOR DEVOPS</div>
-  <div class="score-breakdown" id="score-breakdown"></div>
-  <button class="btn" onclick="resetGame()">PLAY AGAIN &gt;&gt;</button>
+  <div class="final-score" id="final-pts">0</div>
+  <div class="rank" id="rank-lbl">RANK: INTERN</div>
+  <div class="breakdown" id="breakdown"></div>
+  <button class="btn" onclick="reset()">RETRY INCIDENT &gt;&gt;</button>
 </div>
 
 <script>
-// ============================================================
-//  LEVELS  (Linux basics → Docker → Compose)
-// ============================================================
-const LEVELS = [
-  // ── CHAPTER 1: Linux Basics ──
+// ══════════════════════════════════════════════════
+//  LEVEL DATA — generic Linux → Docker
+// ══════════════════════════════════════════════════
+const L = [
+  // ── CHAPTER 1: Linux Survival ──
   {
-    id: 1,
-    category: 'LINUX — NAVIGATION',
-    file: 'terminal',
-    type: 'choice',
-    code: `$ ssh ubuntu@192.168.1.10
-Welcome to Ubuntu 22.04 LTS
-Last login: Mon Apr 21 09:00:00 2026
-ubuntu@server:~$`,
-    task: "You just SSH'd into a remote Linux server. You need to know where you are. What command prints the current directory?",
-    hint: 'Three letters. Think "print working directory".',
-    choices: [
-      { label: 'ls', correct: false },
-      { label: 'pwd', correct: true },
-      { label: 'cd', correct: false },
-      { label: 'whoami', correct: false },
+    cat:'LINUX — NAVIGATION', file:'terminal', type:'choice', diff:1,
+    mission:"You SSH'd into a server. First thing: where even are you?",
+    code:`ubuntu@prod-server:~$`,
+    task:"What command prints the current directory you're in?",
+    hint:"Three letters. Stands for Print Working Directory.",
+    choices:[
+      {t:'cd',ok:false},{t:'ls',ok:false},{t:'pwd',ok:true},{t:'whoami',ok:false}
     ],
-    explanation: 'pwd = Print Working Directory. Always the first command when you land on a new server. Tells you exactly where in the filesystem you are.',
+    why:"pwd (Print Working Directory) shows your current location in the filesystem. Essential first step on any unfamiliar server."
   },
   {
-    id: 2,
-    category: 'LINUX — FILES',
-    file: 'terminal',
-    type: 'type',
-    code: `ubuntu@server:~$ pwd
+    cat:'LINUX — FILES', file:'terminal', type:'choice', diff:1,
+    mission:"You're in /home/ubuntu. You need to see what files exist here.",
+    code:`ubuntu@prod-server:~$ pwd
 /home/ubuntu
-ubuntu@server:~$ ___`,
-    task: 'You know where you are. Now what command do you run to see what files and folders are in this directory?',
-    hint: 'Short for "list". Two letters.',
-    answers: ['ls', 'ls .', 'ls /home/ubuntu'],
-    explanation: 'ls (list) shows everything in a directory. Add -la for hidden files and permissions: `ls -la`',
-  },
-  {
-    id: 3,
-    category: 'LINUX — READING FILES',
-    file: 'terminal',
-    type: 'choice',
-    code: `ubuntu@server:~$ ls
-server.js   .env   docker-compose.yml   README.md
-ubuntu@server:~$ ___  .env`,
-    task: "You want to read what's inside the .env file without opening an editor. What command do you use?",
-    hint: 'Think of a cat. It shows you file contents.',
-    choices: [
-      { label: 'open .env', correct: false },
-      { label: 'read .env', correct: false },
-      { label: 'cat .env', correct: true },
-      { label: 'print .env', correct: false },
+ubuntu@prod-server:~$`,
+    task:"What command lists all files and folders in the current directory?",
+    hint:"Two letters. Think 'list'.",
+    choices:[
+      {t:'show',ok:false},{t:'ls',ok:true},{t:'dir',ok:false},{t:'files',ok:false}
     ],
-    explanation: 'cat (concatenate) reads and prints file contents to the terminal. Quick and simple. For long files, use `less .env` so you can scroll.',
+    why:"ls (list) shows directory contents. Use `ls -la` to also see hidden files (dotfiles like .env) and permissions."
   },
   {
-    id: 4,
-    category: 'LINUX — PACKAGE MANAGER',
-    file: 'terminal',
-    type: 'type',
-    code: `$ apt-get install supervisor`,
-    task: "This command hangs forever — it's waiting for a yes/no prompt with no one to answer it (this is inside a Docker build). What single flag fixes it?",
-    hint: 'It tells apt-get to assume YES to all prompts. Starts with a dash.',
-    answers: ['-y', '--yes', '--assume-yes'],
-    explanation: '-y (or --yes) auto-confirms all prompts. Critical in Dockerfiles and scripts — interactive prompts have nobody to answer them.',
-  },
-  {
-    id: 5,
-    category: 'LINUX — PERMISSIONS',
-    file: 'terminal',
-    type: 'choice',
-    code: `-rw-r--r-- 1 ubuntu ubuntu 1.2K Apr 20 server.js`,
-    task: "Read this permission string. Can ANY user execute (run) this file?",
-    hint: 'The 10 characters break down as: type + owner(rwx) + group(rwx) + others(rwx). Look for x.',
-    choices: [
-      { label: 'Yes — anyone can run it', correct: false },
-      { label: 'No — no execute permission exists', correct: true },
-      { label: 'Only the owner (ubuntu)', correct: false },
-      { label: 'Only root', correct: false },
+    cat:'LINUX — READING FILES', file:'terminal', type:'choice', diff:1,
+    mission:"You see a file called .env. You need to read what's inside it quickly.",
+    code:`ubuntu@prod-server:~$ ls
+app.js   .env   config.yml   README.md`,
+    task:"What command prints a file's contents directly to the terminal?",
+    hint:"Named after an animal. Shows you raw file content.",
+    choices:[
+      {t:'open .env',ok:false},{t:'cat .env',ok:true},{t:'read .env',ok:false},{t:'show .env',ok:false}
     ],
-    explanation: '-rw-r--r-- means: owner=read+write, group=read only, others=read only. No x (execute) anywhere. To make it executable: `chmod +x server.js`',
+    why:"cat (concatenate) dumps file contents to stdout. Fast for small files. For large files, use `less` so you can scroll without flooding the terminal."
   },
   {
-    id: 6,
-    category: 'LINUX — ENV VARIABLES',
-    file: 'terminal',
-    type: 'type',
-    code: `ubuntu@server:~$ echo $PORT
+    cat:'LINUX — SEARCH', file:'terminal', type:'type', diff:2,
+    mission:"The app is crashing. Logs are huge. You need to find lines containing the word 'ERROR' fast.",
+    code:`ubuntu@prod-server:~$ cat app.log
+[INFO]  Server started on port 3000
+[INFO]  DB connected
+[ERROR] Cannot read property of undefined
+[INFO]  Request received
+[ERROR] Timeout connecting to redis
+[INFO]  Health check passed`,
+    task:"What command searches for the word ERROR inside app.log? Format: command pattern file",
+    hint:"The command starts with 'gr'. It filters lines by pattern.",
+    answers:['grep error app.log','grep ERROR app.log','grep "ERROR" app.log',"grep 'ERROR' app.log"],
+    why:"grep (Global Regular Expression Print) filters lines by pattern. It's one of the most-used Linux commands. `grep -i ERROR` makes it case-insensitive. `grep -n` adds line numbers."
+  },
+  {
+    cat:'LINUX — PERMISSIONS', file:'terminal', type:'choice', diff:2,
+    mission:"You try to run a script. It fails silently. You check the file permissions.",
+    code:`ubuntu@prod-server:~$ ls -la
+-rw-r--r-- 1 ubuntu ubuntu  512 Apr 20 deploy.sh`,
+    task:"Why can't you execute deploy.sh? Read the permission string on the left.",
+    hint:"Break down -rw-r--r-- : type(1) + owner(3) + group(3) + others(3). Look for the letter x.",
+    choices:[
+      {t:'The file is owned by root',ok:false},
+      {t:'There is no execute (x) permission',ok:true},
+      {t:'The file size is too small',ok:false},
+      {t:'The file is hidden',ok:false}
+    ],
+    why:"-rw-r--r-- means owner has read+write, group has read, others have read. No x (execute) anywhere. Fix it with: chmod +x deploy.sh"
+  },
+  {
+    cat:'LINUX — PACKAGE MANAGER', file:'terminal', type:'type', diff:2,
+    mission:"Your Dockerfile build has been stuck for 15 minutes. The CI log shows apt-get just sitting there.",
+    code:`Step 3/8 : RUN apt-get install -y curl nodejs
+...
+Do you want to continue? [Y/n]
+_`,
+    task:"apt-get is waiting for keyboard input — but nobody is there. What flag do you add to auto-accept all prompts?",
+    hint:"It's a single character flag. Means 'yes to everything'.",
+    answers:['-y','--yes','--assume-yes'],
+    why:"-y tells apt-get to answer YES to all prompts automatically. Without it, apt hangs forever in scripts and Dockerfiles because there's no human to type Y."
+  },
+  {
+    cat:'LINUX — ENV VARIABLES', file:'terminal', type:'type', diff:2,
+    mission:"The app reads its port from an env variable, but PORT is empty — app defaults to 80 and conflicts with nginx.",
+    code:`ubuntu@prod-server:~$ echo $PORT
 
-ubuntu@server:~$ ___`,
-    task: "PORT is empty. Set it to 8080 in this terminal session so that running `echo $PORT` returns 8080.",
-    hint: 'The command to set env vars in bash is `export`. Syntax: export NAME=VALUE',
-    answers: ['export port=8080', 'export PORT=8080'],
-    explanation: 'export PORT=8080 sets an environment variable in the current shell session. Apps read these with process.env.PORT (Node) or os.environ["PORT"] (Python). Without export, the var won\'t be visible to child processes.',
+ubuntu@prod-server:~$`,
+    task:"Set PORT to 3000 in this shell session. Write the full command.",
+    hint:"The bash command to set env variables is `export`. Syntax: export NAME=VALUE",
+    answers:['export port=3000','export PORT=3000'],
+    why:"export PORT=3000 sets an env var in the current shell AND passes it to child processes. Without export, the variable exists locally but apps spawned from this shell won't see it."
   },
 
-  // ── CHAPTER 2: Dockerfile ──
+  // ── CHAPTER 2: Processes & Pipes ──
   {
-    id: 7,
-    category: 'DOCKERFILE — BASICS',
-    file: 'Dockerfile',
-    type: 'choice',
-    code: `___ python:3.12-slim
+    cat:'LINUX — PROCESSES', file:'terminal', type:'choice', diff:2,
+    mission:"Something is already running on port 3000. You need to find what process it is.",
+    code:`ubuntu@prod-server:~$ node app.js
+Error: listen EADDRINUSE: address already in use :::3000`,
+    task:"What command shows all running processes (so you can find what's using port 3000)?",
+    hint:"Two letters. Stands for Process Status.",
+    choices:[
+      {t:'top',ok:false},{t:'ps aux',ok:true},{t:'jobs',ok:false},{t:'run',ok:false}
+    ],
+    why:"ps aux lists all running processes with their PIDs. Then use `kill <PID>` to stop one. To find what's on a specific port: `lsof -i :3000` or `ss -tlnp | grep 3000`"
+  },
+  {
+    cat:'LINUX — PIPES', file:'terminal', type:'choice', diff:3,
+    mission:"ps aux gives you 200 lines. You only want lines mentioning 'node'.",
+    code:`ubuntu@prod-server:~$ ps aux
+USER  PID  %CPU  %MEM  COMMAND
+root    1   0.0   0.1  /sbin/init
+ubuntu  847  0.0   0.5  sshd
+ubuntu  1203 12.4  2.1  node app.js
+ubuntu  1204  0.0   0.1  bash
+... (200 more lines)`,
+    task:"How do you filter ps aux output to only show lines with 'node'? Complete: ps aux ___ grep node",
+    hint:"It's a single character that 'pipes' the output of one command into another.",
+    choices:[
+      {t:'ps aux > grep node',ok:false},
+      {t:'ps aux && grep node',ok:false},
+      {t:'ps aux | grep node',ok:true},
+      {t:'ps aux + grep node',ok:false}
+    ],
+    why:"The pipe | takes the output of the left command and feeds it as input to the right command. It's one of Linux's most powerful features — chain any commands together."
+  },
 
-RUN apt-get update && apt-get install -y supervisor
+  // ── CHAPTER 3: Docker ──
+  {
+    cat:'DOCKERFILE — BASICS', file:'Dockerfile', type:'choice', diff:2,
+    mission:"You're writing your first Dockerfile. The very first line is broken.",
+    code:`___ node:18-alpine
+
 WORKDIR /app
 COPY . .
-CMD ["supervisord", "-n"]`,
-    task: 'Every Dockerfile must start with a base image instruction. What keyword goes on line 1?',
-    hint: 'Think of it as "build FROM this base". It\'s the very first Dockerfile instruction.',
-    choices: [
-      { label: 'USE', correct: false },
-      { label: 'BASE', correct: false },
-      { label: 'FROM', correct: true },
-      { label: 'START', correct: false },
+RUN npm install
+CMD ["node", "app.js"]`,
+    task:"Every Dockerfile starts by declaring a base image. What keyword goes on line 1?",
+    hint:"You're building FROM something. What's the keyword?",
+    choices:[
+      {t:'USE',ok:false},{t:'IMAGE',ok:false},{t:'FROM',ok:true},{t:'BASE',ok:false}
     ],
-    explanation: 'FROM specifies the base image — the starting point of your container. Everything you add (RUN, COPY, etc.) builds on top of it.',
+    why:"FROM declares the base image — the OS and runtime your container starts with. Everything else (RUN, COPY, CMD) adds layers on top of it."
   },
   {
-    id: 8,
-    category: 'DOCKERFILE — COPY',
-    file: 'Dockerfile',
-    type: 'type',
-    code: `FROM node:18-alpine
+    cat:'DOCKERFILE — COPY', file:'Dockerfile', type:'type', diff:2,
+    mission:"Container builds successfully but crashes on startup: 'Cannot find module app.js'.",
+    code:`FROM node:18-alpine
 WORKDIR /app
 RUN npm install
-# ← something important is missing here
-CMD ["node", "server.js"]`,
-    task: "The container builds fine but crashes at runtime: 'Cannot find module server.js'. What line is missing above the CMD?",
-    hint: 'You need to bring server.js FROM your machine INTO the image.',
-    answers: ['copy server.js .', 'copy server.js ./', 'copy ./server.js .', 'copy ./server.js ./'],
-    explanation: 'COPY server.js . copies the file from your local machine (build context) into the WORKDIR inside the image. Without it, node can\'t find server.js at runtime.',
+# ← missing line here
+CMD ["node", "app.js"]`,
+    task:"What Dockerfile instruction copies app.js from your machine into the container's working directory?",
+    hint:"The instruction is COPY. Syntax: COPY source destination. Destination '.' means current WORKDIR.",
+    answers:['copy app.js .','copy app.js ./','copy ./app.js .','copy ./app.js ./'],
+    why:"COPY app.js . copies the file from your build context (your machine) into the WORKDIR inside the image. Without it, the image has node installed but none of your code."
   },
   {
-    id: 9,
-    category: 'SUPERVISORD CONFIG',
-    file: 'supervisord.conf',
-    type: 'choice',
-    code: `\`\`\`ini
-[supervisord]
-nodaemon=true
-
-[program:app]
-command=node /app/server.js
-autostart=true
-autorestart=true
-\`\`\``,
-    task: "Supervisord throws 'malformed config file' and refuses to start. Look closely at the file. What's wrong?",
-    hint: 'Look at the very first and very last characters of the file. This is not a Markdown file.',
-    choices: [
-      { label: 'nodaemon should be set to false', correct: false },
-      { label: 'The file is wrapped in markdown code fences (``` backticks)', correct: true },
-      { label: '[program:app] should be [program:server]', correct: false },
-      { label: 'autostart and autorestart cannot both be true', correct: false },
-    ],
-    explanation: 'The ``` ini ... ``` wrapping is Markdown syntax for code blocks. Supervisord is an INI parser — it sees the backticks and fails. The file must contain raw config only.',
-  },
-  {
-    id: 10,
-    category: 'DOCKER COMPOSE — IMAGE',
-    file: 'docker-compose.yml',
-    type: 'type',
-    code: `services:
-  ai-server:
-    image: python:3.12-slim
+    cat:'DOCKER COMPOSE — SERVICES', file:'docker-compose.yml', type:'choice', diff:3,
+    mission:"Two services need to talk to each other — app needs to reach the database.",
+    code:`services:
+  app:
+    image: node:18-alpine
     ports:
-      - "\${HOST_PORT:-8080}:\${APP_PORT:-8000}"
+      - "3000:3000"
+
+  database:
+    image: postgres:15
     environment:
-      - APP_PORT=\${APP_PORT:-8000}`,
-    task: "The client pulled the wrong image — a bare Python runtime instead of your app. The correct image lives on GHCR under athulya-cloud/tooljet-ai-server. What should the image value be?",
-    hint: 'GitHub Container Registry URLs start with ghcr.io. Format: ghcr.io/owner/repo:tag',
-    answers: [
-      'ghcr.io/athulya-cloud/tooljet-ai-server:latest',
-      'image: ghcr.io/athulya-cloud/tooljet-ai-server:latest',
+      POSTGRES_PASSWORD: secret`,
+    task:"The app container tries to connect to 'localhost:5432' but can't reach postgres. Why?",
+    hint:"In Docker Compose, each service is its own container. 'localhost' means the container itself.",
+    choices:[
+      {t:'Port 5432 is not exposed in docker-compose',ok:false},
+      {t:'Each container has its own localhost — use the service name as hostname',ok:true},
+      {t:'Postgres image needs to be version 14 not 15',ok:false},
+      {t:'The app needs to run as root',ok:false}
     ],
-    explanation: 'ghcr.io/athulya-cloud/tooljet-ai-server:latest is your private image. Using python:3.12-slim gives a bare Python runtime with zero app code. Notice the dynamic ports — ${HOST_PORT:-8080} means "use HOST_PORT env var, default to 8080".',
+    why:"In Docker Compose, containers talk to each other using service names as hostnames. Use `database:5432` not `localhost:5432`. Docker's internal DNS resolves service names automatically."
   },
 ];
 
-// ============================================================
+// ══════════════════════════════════════════════════
 //  STATE
-// ============================================================
-let state = {
-  levelIdx: 0, score: 0,
-  timerStart: 0, timerInterval: null,
-  hintUsed: false, attempts: 0,
-  levelResults: [], levelTimerSeconds: 0,
-};
+// ══════════════════════════════════════════════════
+let S = { idx:0, score:0, streak:0, attempts:0, hintUsed:false, timerSec:0, timerRef:null, results:[] };
+const MAX_TRY=3, BASE=300, SPEED_MAX=200, HINT_PEN=50;
 
-const MAX_ATTEMPTS = 3;
-const BASE_POINTS = 300;
-const SPEED_BONUS_MAX = 200;
-const HINT_PENALTY = 50;
-
-// ============================================================
-//  MATRIX BG
-// ============================================================
-(function() {
-  const el = document.getElementById('matrix-bg');
-  const chars = '01アイウエオカキクケコサシスセソ';
-  let html = '';
-  for (let i = 0; i < 2000; i++) {
-    html += chars[Math.floor(Math.random() * chars.length)];
-    if (i % 80 === 79) html += '\n';
-  }
-  el.textContent = html;
+// matrix bg
+(()=>{
+  const el=document.getElementById('mbg');
+  const c='01アイウエオカキクケコ';
+  let h='';
+  for(let i=0;i<1800;i++){h+=c[Math.floor(Math.random()*c.length)];if(i%80===79)h+='\n';}
+  el.textContent=h;
 })();
 
-// ============================================================
+// ══════════════════════════════════════════════════
 //  UTILS
-// ============================================================
-function $(id) { return document.getElementById(id); }
+// ══════════════════════════════════════════════════
+const $=id=>document.getElementById(id);
+const norm=s=>s.trim().toLowerCase().replace(/\s+/g,' ');
 
-function showScreen(id) {
-  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+function screen(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
   $(id).classList.add('active');
 }
 
-function setScore(n) {
-  state.score = Math.max(0, n);
-  const el = $('score-display');
-  el.textContent = state.score;
-  el.classList.remove('pop');
-  void el.offsetWidth;
-  el.classList.add('pop');
+function setScore(n){
+  S.score=Math.max(0,n);
+  const el=$('score-val');
+  el.textContent=S.score;
+  el.classList.remove('pop'); void el.offsetWidth; el.classList.add('pop');
 }
 
-function startTimer() {
-  state.timerStart = Date.now();
-  state.levelTimerSeconds = 0;
-  clearInterval(state.timerInterval);
-  state.timerInterval = setInterval(() => {
-    state.levelTimerSeconds = Math.floor((Date.now() - state.timerStart) / 1000);
-    const m = String(Math.floor(state.levelTimerSeconds / 60)).padStart(2, '0');
-    const s = String(state.levelTimerSeconds % 60).padStart(2, '0');
-    const el = $('timer-display');
-    el.textContent = m + ':' + s;
-    el.classList.toggle('urgent', state.levelTimerSeconds > 30);
-  }, 500);
+function startTimer(){
+  S.timerSec=0; clearInterval(S.timerRef);
+  S.timerRef=setInterval(()=>{
+    S.timerSec++;
+    const m=String(Math.floor(S.timerSec/60)).padStart(2,'0');
+    const s=String(S.timerSec%60).padStart(2,'0');
+    const el=$('timer-val');
+    el.textContent=m+':'+s;
+    el.classList.toggle('hot',S.timerSec>25);
+  },1000);
 }
 
-function stopTimer() {
-  clearInterval(state.timerInterval);
-  return state.levelTimerSeconds;
+function stopTimer(){ clearInterval(S.timerRef); return S.timerSec; }
+
+function speedBonus(sec){
+  if(sec<=8) return SPEED_MAX;
+  if(sec>=50) return 0;
+  return Math.round(SPEED_MAX*(1-(sec-8)/42));
 }
 
-function calcSpeedBonus(sec) {
-  if (sec <= 10) return SPEED_BONUS_MAX;
-  if (sec >= 60) return 0;
-  return Math.round(SPEED_BONUS_MAX * (1 - (sec - 10) / 50));
+// ══════════════════════════════════════════════════
+//  GAME
+// ══════════════════════════════════════════════════
+function startGame(){
+  S={idx:0,score:0,streak:0,attempts:0,hintUsed:false,timerSec:0,timerRef:null,results:[]};
+  setScore(0); updateStreak();
+  screen('game'); loadLevel(0);
+}
+function reset(){ startGame(); }
+
+function updateStreak(){
+  const badge=$('streak-badge');
+  if(S.streak>=2){
+    badge.style.display='inline-block';
+    $('streak-num').textContent=S.streak;
+    badge.style.animation='none'; void badge.offsetWidth; badge.style.animation='streakBounce 0.4s ease';
+  } else { badge.style.display='none'; }
 }
 
-function normalize(str) { return str.trim().toLowerCase().replace(/\s+/g, ' '); }
+function loadLevel(i){
+  const lv=L[i];
+  S.attempts=0; S.hintUsed=false;
 
-// ============================================================
-//  GAME FLOW
-// ============================================================
-function startGame() {
-  state.levelIdx = 0; state.score = 0; state.levelResults = [];
-  setScore(0);
-  showScreen('game');
-  loadLevel(0);
-}
+  $('lvl-badge').textContent=`LVL ${i+1}/${L.length}`;
+  $('lvl-cat').textContent=lv.cat;
+  $('lvl-ind').textContent=`LVL ${i+1}/${L.length}`;
+  $('file-lbl').textContent=lv.file;
+  $('prog-bar').style.width=(i/L.length*100)+'%';
 
-function resetGame() { startGame(); }
+  $('mission-box').textContent=lv.mission;
+  $('code-out').innerHTML=fmtCode(lv,i);
+  $('task-box').textContent=lv.task;
 
-function loadLevel(idx) {
-  const lvl = LEVELS[idx];
-  state.hintUsed = false; state.attempts = 0;
+  $('hint-box').textContent=''; $('hint-box').classList.remove('on');
+  $('explain-box').textContent=''; $('explain-box').classList.remove('on');
+  $('hint-btn').disabled=false; $('hint-btn').style.opacity='1';
+  $('fb').textContent=''; $('fb').className='fb';
 
-  $('level-badge').textContent = `LEVEL ${idx + 1} / ${LEVELS.length}`;
-  $('level-title').textContent = lvl.category;
-  $('level-indicator').textContent = `LEVEL ${idx + 1}/${LEVELS.length}`;
-  $('file-label').textContent = lvl.file;
-  $('progress-bar').style.width = (idx / LEVELS.length * 100) + '%';
-  $('code-display').innerHTML = formatCode(lvl);
-  $('task-text').textContent = lvl.task;
-
-  $('hint-box').textContent = '';
-  $('hint-box').classList.remove('visible');
-  $('hint-btn').disabled = false;
-  $('hint-btn').style.opacity = '1';
-
-  $('explain-box').textContent = '';
-  $('explain-box').classList.remove('visible');
-
-  $('feedback-bar').textContent = '';
-  $('feedback-bar').className = 'feedback-bar';
-
-  const ar = $('attempts-row');
-  ar.innerHTML = '';
-  for (let i = 0; i < MAX_ATTEMPTS; i++) {
-    const d = document.createElement('div');
-    d.className = 'attempt-dot'; d.id = `dot-${i}`;
-    ar.appendChild(d);
+  const tr=$('tries'); tr.innerHTML='';
+  for(let j=0;j<MAX_TRY;j++){
+    const d=document.createElement('div'); d.className='try-dot'; d.id=`td${j}`; tr.appendChild(d);
   }
+  const tl=document.createElement('span'); tl.className='tries-label'; tl.textContent='attempts'; tr.appendChild(tl);
 
-  if (lvl.type === 'type') {
-    $('type-answer-section').style.display = 'flex';
-    $('choices-section').style.display = 'none';
-    const inp = $('answer-input');
-    inp.value = ''; inp.className = ''; inp.focus();
+  if(lv.type==='type'){
+    $('type-sec').style.display='flex'; $('choice-sec').style.display='none';
+    const inp=$('ans-inp'); inp.value=''; inp.className=''; setTimeout(()=>inp.focus(),50);
   } else {
-    $('type-answer-section').style.display = 'none';
-    $('choices-section').style.display = 'grid';
-    buildChoices(lvl.choices);
+    $('type-sec').style.display='none'; $('choice-sec').style.display='grid';
+    buildChoices(lv.choices);
   }
-
   startTimer();
 }
 
-function formatCode(lvl) {
-  let html = lvl.code
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;');
-
-  const id = lvl.id;
-  if (id === 2) html = html.replace('___', '<span class="highlight-bad">___</span>');
-  if (id === 4) html = html.replace('apt-get install supervisor', 'apt-get install supervisor<span class="highlight-bad"> ← no -y !</span>');
-  if (id === 7) html = html.replace('___', '<span class="highlight-bad">___</span>');
-  if (id === 8) html = html.replace('# ← something important is missing here', '<span class="highlight-bad"># ← something important is missing here</span>');
-  if (id === 9) {
-    // highlight only the fence lines, not the content
-    html = html.replace('```ini', '<span class="highlight-bad">```ini</span>');
-    // replace the closing fence at the end
-    const lastFence = html.lastIndexOf('```');
-    if (lastFence >= 0) {
-      html = html.substring(0, lastFence) + '<span class="highlight-bad">```</span>' + html.substring(lastFence + 3);
-    }
+function fmtCode(lv,i){
+  let h=lv.code.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  // highlight known bad spots
+  if(lv.file==='Dockerfile'){
+    h=h.replace('___ ','<span class="bad">___</span> ');
+    h=h.replace('# ← missing line here','<span class="bad"># ← missing line here</span>');
   }
-  if (id === 10) html = html.replace('python:3.12-slim', '<span class="highlight-bad">python:3.12-slim</span>');
-
-  return html;
+  if(lv.cat.includes('PACKAGE')){
+    h=h.replace('_','<span class="bad">_</span>');
+  }
+  return h;
 }
 
-function buildChoices(choices) {
-  const grid = $('choices-section');
-  grid.innerHTML = '';
-  choices.forEach(c => {
-    const btn = document.createElement('button');
-    btn.className = 'choice-btn';
-    btn.textContent = c.label;
-    btn.onclick = () => handleChoiceClick(btn, c.correct, choices);
-    grid.appendChild(btn);
+function buildChoices(choices){
+  const g=$('choice-sec'); g.innerHTML='';
+  choices.forEach(c=>{
+    const b=document.createElement('button'); b.className='ch-btn'; b.textContent=c.t;
+    b.onclick=()=>pickChoice(b,c.ok,choices); g.appendChild(b);
   });
 }
 
-// ============================================================
-//  ANSWER HANDLING
-// ============================================================
-function submitAnswer() {
-  const raw = $('answer-input').value;
-  if (!normalize(raw)) return;
-  const lvl = LEVELS[state.levelIdx];
-  const correct = lvl.answers.some(a => normalize(a) === normalize(raw));
-  handleResult(correct, $('answer-input'));
+// ══════════════════════════════════════════════════
+//  ANSWERS
+// ══════════════════════════════════════════════════
+function submit(){
+  const v=norm($('ans-inp').value); if(!v) return;
+  const lv=L[S.idx];
+  const ok=lv.answers.some(a=>norm(a)===v);
+  handleResult(ok,$('ans-inp'));
 }
 
-$('answer-input').addEventListener('keydown', e => { if (e.key === 'Enter') submitAnswer(); });
+$('ans-inp').addEventListener('keydown',e=>{ if(e.key==='Enter') submit(); });
 
-function handleChoiceClick(btn, correct, choices) {
-  $('choices-section').querySelectorAll('.choice-btn').forEach(b => b.disabled = true);
-  btn.classList.add(correct ? 'correct-choice' : 'wrong-choice');
-  if (!correct) {
-    const allBtns = $('choices-section').querySelectorAll('.choice-btn');
-    choices.forEach((c, i) => { if (c.correct) allBtns[i].classList.add('correct-choice'); });
+function pickChoice(btn,ok,choices){
+  $('choice-sec').querySelectorAll('.ch-btn').forEach(b=>b.disabled=true);
+  btn.classList.add(ok?'ok':'err');
+  if(!ok){
+    const all=$('choice-sec').querySelectorAll('.ch-btn');
+    choices.forEach((c,j)=>{ if(c.ok) all[j].classList.add('ok'); });
   }
-  handleResult(correct, btn);
+  handleResult(ok,btn);
 }
 
-function handleResult(correct, inputEl) {
-  if (correct) {
-    const seconds = stopTimer();
-    const speedBonus = calcSpeedBonus(seconds);
-    const hintPenalty = state.hintUsed ? HINT_PENALTY : 0;
-    const wrongPenalty = state.attempts * 40;
-    const gained = Math.max(BASE_POINTS + speedBonus - hintPenalty - wrongPenalty, 50);
+function handleResult(ok,el){
+  if(ok){
+    const sec=stopTimer();
+    const spd=speedBonus(sec);
+    const hpen=S.hintUsed?HINT_PEN:0;
+    const wpen=S.attempts*40;
+    const streakBonus=S.streak>=3?50:S.streak>=2?25:0;
+    const pts=Math.max(BASE+spd-hpen-wpen+streakBonus,50);
+    S.streak++;
+    setScore(S.score+pts); updateStreak();
 
-    setScore(state.score + gained);
-    const dot = $(`dot-${state.attempts}`);
-    if (dot) dot.classList.add('correct');
+    if(el&&el.tagName==='INPUT'){ el.classList.add('flash-ok'); }
+    const dot=$(`td${S.attempts}`); if(dot) dot.classList.add('ok');
 
-    if (inputEl && inputEl.tagName === 'INPUT') inputEl.classList.add('correct-flash');
+    const fb=$('fb'); fb.className='fb ok';
+    let msg=`✔ CORRECT! +${pts} pts`;
+    if(S.streak>=2) msg+=` 🔥 streak x${S.streak}`;
+    if(spd>100) msg+=`  ⚡ fast +${spd}`;
+    fb.textContent=msg;
 
-    const fb = $('feedback-bar');
-    fb.className = 'feedback-bar correct';
-    fb.innerHTML = `&#10004; CORRECT! +${gained} pts <span style="color:var(--text-muted);font-size:0.75rem">(speed +${speedBonus}${state.hintUsed ? ' hint -' + HINT_PENALTY : ''}${state.attempts > 0 ? ' wrong -' + wrongPenalty : ''})</span>`;
+    $('explain-box').textContent=L[S.idx].why;
+    $('explain-box').classList.add('on');
 
-    // Show explanation
-    const eb = $('explain-box');
-    eb.textContent = LEVELS[state.levelIdx].explanation;
-    eb.classList.add('visible');
-
-    state.levelResults.push({ level: state.levelIdx + 1, category: LEVELS[state.levelIdx].category, pts: gained, seconds });
-    setTimeout(advanceLevel, 2500);
+    S.results.push({lvl:S.idx+1,cat:L[S.idx].cat,pts,sec});
+    setTimeout(advance, 2600);
 
   } else {
-    state.attempts++;
-    const dot = $(`dot-${state.attempts - 1}`);
-    if (dot) dot.classList.add('used');
+    S.attempts++; S.streak=0; updateStreak();
+    const dot=$(`td${S.attempts-1}`); if(dot) dot.classList.add('x');
 
-    if (inputEl && inputEl.tagName === 'INPUT') {
-      inputEl.classList.remove('wrong-flash');
-      void inputEl.offsetWidth;
-      inputEl.classList.add('wrong-flash');
-      setTimeout(() => inputEl.classList.remove('wrong-flash'), 500);
-      inputEl.value = ''; inputEl.focus();
+    if(el&&el.tagName==='INPUT'){
+      el.classList.remove('flash-err'); void el.offsetWidth;
+      el.classList.add('flash-err');
+      setTimeout(()=>el.classList.remove('flash-err'),500);
+      el.value=''; el.focus();
     }
 
-    const fb = $('feedback-bar');
-    fb.className = 'feedback-bar wrong';
-
-    if (state.attempts >= MAX_ATTEMPTS) {
-      const lvl = LEVELS[state.levelIdx];
-      const answer = lvl.type === 'type' ? lvl.answers[0] : lvl.choices.find(c => c.correct).label;
-      fb.innerHTML = `&#10008; Out of tries. Answer: <code style="color:var(--amber)">${answer}</code>`;
+    const fb=$('fb'); fb.className='fb err';
+    if(S.attempts>=MAX_TRY){
+      const lv=L[S.idx];
+      const ans=lv.type==='type'?lv.answers[0]:lv.choices.find(c=>c.ok).t;
+      fb.innerHTML=`✘ Out of tries. Answer: <code style="color:var(--amber)">${ans}</code>`;
       stopTimer();
-
-      const eb = $('explain-box');
-      eb.textContent = lvl.explanation;
-      eb.classList.add('visible');
-
-      state.levelResults.push({ level: state.levelIdx + 1, category: lvl.category, pts: 0, seconds: state.levelTimerSeconds });
-      setTimeout(advanceLevel, 2800);
+      $('explain-box').textContent=lv.why; $('explain-box').classList.add('on');
+      S.results.push({lvl:S.idx+1,cat:lv.cat,pts:0,sec:S.timerSec});
+      setTimeout(advance,3000);
     } else {
-      const left = MAX_ATTEMPTS - state.attempts;
-      fb.textContent = `\u2718 Nope. ${left} attempt${left !== 1 ? 's' : ''} left.`;
+      const left=MAX_TRY-S.attempts;
+      const msgs=['Nope.','Not quite. Think harder.','Wrong. One last shot.'];
+      fb.textContent=`✘ ${msgs[S.attempts-1]} ${left} left.`;
     }
   }
 }
 
-function advanceLevel() {
-  state.levelIdx++;
-  if (state.levelIdx >= LEVELS.length) endGame();
-  else loadLevel(state.levelIdx);
+function advance(){
+  S.idx++;
+  if(S.idx>=L.length) endGame(); else loadLevel(S.idx);
 }
 
-function showHint() {
-  const lvl = LEVELS[state.levelIdx];
-  state.hintUsed = true;
-  setScore(state.score - HINT_PENALTY);
-  $('hint-box').textContent = lvl.hint;
-  $('hint-box').classList.add('visible');
-  $('hint-btn').disabled = true;
-  $('hint-btn').style.opacity = '0.4';
+function useHint(){
+  S.hintUsed=true;
+  setScore(S.score-HINT_PEN);
+  $('hint-box').textContent=L[S.idx].hint;
+  $('hint-box').classList.add('on');
+  $('hint-btn').disabled=true; $('hint-btn').style.opacity='0.35';
 }
 
-// ============================================================
-//  END GAME
-// ============================================================
-function endGame() {
+// ══════════════════════════════════════════════════
+//  END
+// ══════════════════════════════════════════════════
+function endGame(){
   stopTimer();
-  $('progress-bar').style.width = '100%';
-  $('level-indicator').textContent = 'COMPLETE';
+  $('prog-bar').style.width='100%';
+  $('lvl-ind').textContent='DONE';
+  const sc=S.score;
+  $('final-pts').textContent=sc;
 
-  const score = state.score;
-  $('final-score').textContent = score;
+  let title,rank;
+  if(sc>=4500){title='INCIDENT RESOLVED';rank='SENIOR SRE 🏆';}
+  else if(sc>=3000){title='SHIP STABILIZED';rank='DEVOPS ENGINEER ⚡';}
+  else if(sc>=1500){title='SHIP LIMPING';rank='JUNIOR DEVOPS 🔧';}
+  else{title='SHIP STILL SINKING';rank='INTERN 💀';}
 
-  let rank, title;
-  if (score >= 4000) { rank = 'SENIOR SRE'; title = 'SHIP: FULLY OPERATIONAL'; }
-  else if (score >= 2500) { rank = 'DEVOPS ENGINEER'; title = 'SHIP: MOSTLY FIXED'; }
-  else if (score >= 1200) { rank = 'JUNIOR DEVOPS'; title = 'SHIP: LIMPING ALONG'; }
-  else { rank = 'INTERN'; title = 'SHIP: STILL BROKEN'; }
+  $('end-title').textContent=title;
+  $('rank-lbl').textContent='// RANK: '+rank+' //';
 
-  $('end-title').textContent = title;
-  $('rank-label').textContent = '// RANK: ' + rank + ' //';
-
-  let html = '<h3>LEVEL BREAKDOWN</h3>';
-  state.levelResults.forEach(r => {
-    html += `<div class="breakdown-row"><span>LVL ${r.level}: ${r.category}</span><span class="${r.pts > 0 ? 'pts' : 'pts neg'}">${r.pts > 0 ? '+' + r.pts : 0} pts</span></div>`;
+  let html='<h3>BREAKDOWN</h3>';
+  S.results.forEach(r=>{
+    html+=`<div class="brow"><span>LVL${r.lvl}: ${r.cat}</span><span class="${r.pts>0?'p':'p neg'}">${r.pts>0?'+'+r.pts:0}</span></div>`;
   });
-  html += `<div class="breakdown-row" style="margin-top:8px;padding-top:8px;border-top:1px solid var(--border)"><span><strong>TOTAL</strong></span><span class="pts">${score}</span></div>`;
-  $('score-breakdown').innerHTML = html;
-
-  showScreen('end');
+  html+=`<div class="brow" style="margin-top:8px;border-top:1px solid var(--border);padding-top:8px"><strong>TOTAL</strong><span class="p">${sc}</span></div>`;
+  $('breakdown').innerHTML=html;
+  screen('end');
 }
 
-showScreen('splash');
-$('timer-display').textContent = '00:00';
+screen('splash');
 </script>
 </body>
 </html>
